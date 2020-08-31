@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { NextPage, NextPageContext } from 'next';
-import { Table, Radio, Divider } from 'antd';
+import { Table, Radio, Divider, Button } from 'antd';
 
 interface Props {
   query: {
@@ -18,7 +18,7 @@ const columns = [
   {
     title: 'Sha',
     dataIndex: 'sha',
-    render: text => <pre>{text}</pre>,
+    render: text => <pre>{text.substr(0, 7)}</pre>,
   },
   {
     title: 'Date',
@@ -27,6 +27,8 @@ const columns = [
   {
     title: 'Message',
     dataIndex: 'message',
+    render: text => {
+    return <pre>{text.split("\n\n")[0]}</pre>},
   },
   {
     title: 'Author',
@@ -36,7 +38,7 @@ const columns = [
   {
     title: 'Operations',
     render: () => {
-      return <span>Deploy</span>
+      return <Button>Deploy</Button>
     }
   }
 ];
@@ -53,25 +55,23 @@ const rowSelection = {
 
 const Demo = (props) => {
   const [selectionType, setSelectionType] = useState('checkbox');
+  const [selectedRowKeys] = useState('selectedRowKeys');
+
   return (
     <div>
-      <Radio.Group
-        onChange={({ target: { value } }) => {
-          setSelectionType(value);
-        }}
-        value={selectionType}
-      >
-        <Radio value="checkbox">Checkbox</Radio>
-        <Radio value="radio">radio</Radio>
-      </Radio.Group>
-
+      <Button>CherryPick</Button>
       <Divider />
 
       <Table
         size='small'
         columns={columns}
+        rowKey='sha'
         dataSource={props.commits}
-      />
+        rowSelection={rowSelection}
+        expandable={{
+          expandedRowRender: record => <pre>{record.message}</pre>,
+        }}
+        />
     </div>
   );
 };

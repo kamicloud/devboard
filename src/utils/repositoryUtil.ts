@@ -1,5 +1,6 @@
 import Git from 'nodegit';
 import configUtil from './configUtil';
+import fse from 'fs-extra';
 
 export default class RepositoryUtil {
   public static getRepositoryNameByUrl(repositoryUrl) {
@@ -12,9 +13,26 @@ export default class RepositoryUtil {
     return arr[arr.length - 1];
   }
 
-  static async cloneRepository(repository) {
+  public static async cloneRepository(repository) {
     const repositoryConfig = configUtil.getRepositoryConfig(repository);
-    const repo = await Git.Clone(repositoryConfig.url, './storage/repositories/' + repositoryConfig.name)
+
+    const opts = repositoryConfig.token ? {
+      fetchOpts: {
+        callbacks: {
+          credentials: function() {
+            return Git.Cred.userpassPlaintextNew(repositoryConfig.token, "x-oauth-basic");
+          },
+          certificateCheck: function() {
+            return 0;
+          }
+        }
+      }
+    } : null;
+
+    const path = './storage/repositories/' + repositoryConfig.name;
+
+    await fse.remove(path);
+    const repo = await Git.Clone(repositoryConfig.url, path, opts)
     // const commit = await repo.getCommit("59b20b8d5c6ff8d09518454d4dd8b7b30f095ab5");
     // const entry = await commit.getEntry("README.md");
     // const blob = entry.getBlob();

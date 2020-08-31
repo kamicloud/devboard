@@ -20,21 +20,21 @@ export class AppController {
   }
 
   @Render('Commits')
-  @Get(':repository/commits')
+  @Get(':repository/:branch/commits')
   public async commits(@Param() params) {
     const repository = params.repository;
-    const commits = await RepositoryUtil.getRepositoryCommits(repository, 'master');
+    const commits = await RepositoryUtil.getRepositoryCommits(repository, params.branch);
     return {
       commits: commits
     };
   }
 
-  /**
-   * name
-   */
-  public async name() {
-    await RepositoryUtil.cloneRepository(
-      'https://github.com/kamicloud/stub-api'
-    );
+  @Get(':repository/clone')
+  public async clone(@Param() params) {
+    await RepositoryUtil.cloneRepository(params.repository);
+
+    return {
+      message: 'success',
+    }
   }
 }
