@@ -13,7 +13,7 @@ export default class RepositoryUtil {
     return arr[arr.length - 1];
   }
 
-  public static async cloneRepository(repository) {
+  public static async cloneRepository(repository, force = false) {
     const repositoryConfig = configUtil.getRepositoryConfig(repository);
 
     const opts = repositoryConfig.token ? {
@@ -31,7 +31,9 @@ export default class RepositoryUtil {
 
     const path = './storage/repositories/' + repositoryConfig.name;
 
-    await fse.remove(path);
+    if (force) {
+      await fse.remove(path);
+    }
     const repo = await Git.Clone(repositoryConfig.url, path, opts)
     // const commit = await repo.getCommit("59b20b8d5c6ff8d09518454d4dd8b7b30f095ab5");
     // const entry = await commit.getEntry("README.md");

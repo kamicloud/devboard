@@ -53,7 +53,7 @@ const rowSelection = {
   }),
 };
 
-const Demo = (props) => {
+const CommitsTable = (props) => {
   const [selectionType, setSelectionType] = useState('checkbox');
   const [selectedRowKeys] = useState('selectedRowKeys');
 
@@ -77,7 +77,7 @@ const Demo = (props) => {
 };
 const Index: NextPage<Props> = ({ query }) => {
   return <div>
-    <Demo
+    <CommitsTable
       commits={query.commits}
     />
   </div>;
