@@ -2,9 +2,12 @@ import { Controller, Get, Query, Render, Param, Req } from '@nestjs/common';
 import RepositoryUtil from '../utils/repositoryUtil';
 import { Octokit } from '@octokit/rest';
 import config from '../utils/configUtil';
+import { AppService } from '../services/app.service';
 
 @Controller('releases')
 export class ReleaseController {
+  constructor(private readonly appService: AppService) {}
+
   @Render('Releases')
   @Get()
   public async index(@Query('repository') repository: string) {

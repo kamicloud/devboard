@@ -2,3 +2,4 @@
 .next/
 /repository.yaml
 /.access.json
+.env

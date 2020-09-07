@@ -64,7 +64,7 @@ const ReleasesTable = (props) => {
           >
             Search
           </Button>
-          <Button onClick={() => this.handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button size="small" style={{ width: 90 }}>
             Reset
           </Button>
         </Space>
