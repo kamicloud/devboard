@@ -6,5 +6,11 @@ export default () => ({
     host: process.env.JENKINS_HOST,
     jobs: process.env.JENKINS_JOBS,
     dingdingToken: process.env.JENKINS_DINGDING_TOKEN,
+    dingtalkToken2: process.env.JENKINS_DINGTALK_TOKEN2,
+  },
+  jira: {
+    endpoint: process.env.JIRA_ENDPOINT,
+    username: process.env.JIRA_USERNAME,
+    password: process.env.JIRA_PASSWORD,
   }
 });

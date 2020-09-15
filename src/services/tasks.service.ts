@@ -87,7 +87,7 @@ export class TasksService {
         return content;
       });
       if (dingdingToken && this.notifyEnabled[job] && contentArr.length) {
-        const content = "Releases:\n" + contentArr.join("\n");
+        const content = `${job} releases:\n${contentArr.join("\n")}`;
         await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
           msgtype: 'text',
           text: {

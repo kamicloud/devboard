@@ -13,7 +13,8 @@
     "build:ui": "npx next build",
     "build:server": "npx tsc --project tsconfig.server.json && npx babel .next/production-server -d .next/production-server --extensions \".js\"",
     "build": "npm run build:clean && npm run build:ui && npm run build:server",
-    "start": "cross-env NODE_ENV=production node .next/production-server/main.js"
+    "start": "cross-env NODE_ENV=production node .next/production-server/main.js",
+    "doc": "npx compodoc -p tsconfig.json -s"
   },
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
