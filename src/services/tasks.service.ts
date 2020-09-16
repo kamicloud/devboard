@@ -4,6 +4,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import notifier from 'node-notifier';
+import { JenkinsService } from './jenkins.service';
+import { JiraService } from './jira.service';
 
 const STATE_RUNNING = 'RUNNING';
 const STATE_FINISHED = 'FINISHED';
@@ -20,16 +22,61 @@ declare interface JenkinsRun {
   }[]
 }
 
+declare interface JiraIssue {
+  id: string,
+  key: string,
+  fields: {
+    summary: string,
+    updated: string,
+  }
+}
+
+declare interface JiraChangelog {
+  author: JiraAuthorProfile,
+  created: string,
+  items: {
+    field: string,
+    fieldtype: string,
+    fromString?: string,
+    toString?: string,
+  }[],
+}
+
+declare interface JiraAuthorProfile {
+  displayName: string,
+  emailAddress: string,
+}
+
+declare interface JiraIssueComment {
+  id: string,
+  author: JiraAuthorProfile,
+  body: {
+    version: number,
+    type: string,
+  },
+  created: string,
+  updated: string,
+}
+
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
   private temp = {};
   private notifyEnabled = {};
+  private jiraActivitiesMap = {};
 
-  constructor(private configService: ConfigService) { }
+  private jiraLastRun: Date = new Date();
+
+  constructor(
+    private configService: ConfigService,
+    private jenkinsService: JenkinsService,
+    private jiraService: JiraService
+  ) {
+    this.jiraLastRun = new Date();
+  }
 
   @Cron('*/10 * * * * *')
-  async handleCron() {
+  async loadJenkinsActivities() {
     const { enabled, username, password, host, jobs, dingdingToken } = this.configService.get<any>('jenkins');
 
     if (!enabled) {
@@ -82,7 +129,7 @@ export class TasksService {
 
         let content = '';
 
-        content += `${pipeline} \t${this.mapState(state)}\t${this.mapResult(result)}`;
+        content += `${pipeline} \t${this.jenkinsService.mapState(state)}\t${this.jenkinsService.mapResult(result)}`;
 
         return content;
       });
@@ -99,29 +146,72 @@ export class TasksService {
     });
   }
 
-  public mapResult(result: string) {
-    switch (result) {
-      case 'UNKNOWN':
-        return '未完成';
-      case 'SUCCESS':
-        return '成功';
-      case 'FAILURE':
-        return '失败';
-      default:
-        return result;
-    }
-  }
+  @Cron('*/10 * * * * *')
+  async loadJiraActivities() {
+    const { issues }: { issues: JiraIssue[] } = await this.jiraService.search();
 
-  public mapState(state: string) {
-    switch (state) {
-      case 'FINISHED':
-        return '部署结束';
-      case 'RUNNING':
-        return '部署中';
-      case 'QUEUED':
-        return '队列等待'
-      default:
-        return state;
+    const jiraLastRun = this.jiraLastRun;
+    this.jiraLastRun = new Date();
+
+    const filteredIssues = issues.filter(issue => {
+      const { fields } = issue;
+
+      const updated = new Date(fields.updated);
+
+      if (jiraLastRun.getTime() >= updated.getTime() || this.jiraLastRun.getTime() < updated.getTime()) {
+        return false;
+      }
+
+      return true;
+    });
+
+    for (let i = 0; i < filteredIssues.length; i++) {
+      const issue = filteredIssues[i];
+      const { fields } = issue;
+
+      const updated = new Date(fields.updated);
+
+      const { values }: { values: JiraChangelog[] } = await this.jiraService.changelog(issue.key);
+      const { comments }: { comments: JiraIssueComment[] } = await this.jiraService.comments(issue.key);
+      console.log(issue.key, fields.summary, updated);
+
+      let finalContent = `Title: [${issue.key}] ${fields.summary}\n`;
+
+      finalContent += values.filter(value => {
+        const created = new Date(value.created);
+
+        if (jiraLastRun.getTime() >= created.getTime() || this.jiraLastRun.getTime() < updated.getTime()) {
+          return false;
+        }
+
+        return true;
+      }).map(value => {
+        const created = new Date(value.created);
+        console.log(value, jiraLastRun, created)
+        const content = value.items.map(item => {
+          const { field } = item;
+
+          return `${field}: ${item.fromString} => ${item.toString}`;
+        }).join("\n");
+        return `Author: ${value.author.displayName}\n${content}\n`;
+      }).join("\n");
+
+      comments.filter(comment => {
+        const updated = new Date(comment.updated);
+        if (jiraLastRun.getTime() >= updated.getTime() || this.jiraLastRun.getTime() < updated.getTime()) {
+          return false;
+        }
+        return true;
+      });
+
+      const { dingtalkToken2 } = this.configService.get<any>('jenkins');
+      const { data } = await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingtalkToken2}`, {
+        msgtype: 'text',
+        text: {
+          content: finalContent,
+        }
+      });
+      console.log(finalContent, data);
     }
   }
 }

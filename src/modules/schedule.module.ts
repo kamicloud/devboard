@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from '../services/tasks.service';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
+import { SharedModule } from './shared.module';
 
 @Module({
   imports: [
@@ -12,8 +13,8 @@ import configuration from '../config/configuration';
       isGlobal: true,
       load: [configuration],
     }),
+    SharedModule,
     ScheduleModule.forRoot(),
-    ApiModule,
   ],
   providers: [
     TasksService,

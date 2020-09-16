@@ -8,90 +8,60 @@ interface Props {
 }
 
 const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      render: text => <a>{text}</a>,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-  ];
-  const data = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park',
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-      address: 'London No. 1 Lake Park',
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      address: 'Sidney No. 1 Lake Park',
-    },
-    {
-      key: '4',
-      name: 'Disabled User',
-      age: 99,
-      address: 'Sidney No. 1 Lake Park',
-    },
-  ]; // rowSelection object indicates the need for row selection
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    render: (text) => {
+      return text;
+    }
+  },
+  {
+    title: 'Name',
+    dataIndex: 'key',
+    render: (text, model) => {
+      return `[${text}] ${model.fields.summary}`;
+    }
+  },
+];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-    },
-    getCheckboxProps: record => ({
-      disabled: record.name === 'Disabled User',
-      // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
-
-  const Demo = () => {
-    const [selectionType, setSelectionType] = useState('checkbox');
-    return (
-      <div>
-        <Radio.Group
-          onChange={({ target: { value } }) => {
-            setSelectionType(value);
-          }}
-          value={selectionType}
-        >
-          <Radio value="checkbox">Checkbox</Radio>
-          <Radio value="radio">radio</Radio>
-        </Radio.Group>
-
-        <Divider />
-
-        <Table
-          columns={columns}
-          dataSource={data}
-        />
-      </div>
-    );
-  };
-const Index: NextPage<Props> = ({ query }) => {
-  const greetName = query.name ? query.name : 'World';
-  return <div>Hello, {greetName}!<Demo /></div>;
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+  },
+  getCheckboxProps: record => ({
+    disabled: record.name === 'Disabled User',
+    // Column configuration not to be checked
+    name: record.name,
+  }),
 };
 
-Index.getInitialProps = async (ctx: NextPageContext) => {
-  console.log('query', ctx)
+const Kanban: NextPage<Props> = ({ query }) => {
+  const greetName = query.name ? query.name : 'World';
+  const [selectionType, setSelectionType] = useState('checkbox');
+  return <div>
+    <Radio.Group
+      onChange={({ target: { value } }) => {
+        setSelectionType(value);
+      }}
+      value={selectionType}
+    >
+      <Radio value="checkbox">Checkbox</Radio>
+      <Radio value="radio">radio</Radio>
+    </Radio.Group>
+
+    <Divider />
+
+    <Table
+      columns={columns}
+      dataSource={query.issues.issues}
+    />
+  </div>;
+};
+
+Kanban.getInitialProps = async (ctx: NextPageContext) => {
   const { query } = ctx;
+  console.log('query', query)
   return { query };
 };
 
-export default Index;
+export default Kanban;

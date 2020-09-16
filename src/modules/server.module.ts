@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { HomeModule } from './home.module';
 import { RenderModule } from 'nest-next';
+import { SharedModule } from './shared.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { RenderModule } from 'nest-next';
       isGlobal: true,
       load: [configuration],
     }),
+    SharedModule,
     ScheduleModule.forRoot(),
     ApiModule,
     HomeModule,
