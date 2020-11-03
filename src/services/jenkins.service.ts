@@ -1,8 +1,27 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import jenkinsapi from 'jenkins-api';
 
 @Injectable()
 export class JenkinsService {
+  constructor(
+    private configService: ConfigService
+  ) {
+  }
+
+  public async getRuns(job: string) {
+    const { username, password, host } = this.configService.get<any>('jenkins');
+    const { data }: { data: Jenkins.Run[] } = await axios.get(`${host}/blue/rest/organizations/jenkins/pipelines/${job}/runs/`, {
+      auth: {
+        username,
+        password,
+      }
+    });
+
+    return { data };
+  }
+
   public mapResult(result: string) {
     switch (result) {
       case 'UNKNOWN':
@@ -27,5 +46,18 @@ export class JenkinsService {
       default:
         return state;
     }
+  }
+}
+
+declare namespace Jenkins {
+  interface Run {
+    id: string,
+    pipeline: string,
+    state: string,
+    changeSet: {}[],
+    result: string,
+    causes: {
+      shortDescription: string,
+    }[]
   }
 }

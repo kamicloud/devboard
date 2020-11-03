@@ -4,59 +4,9 @@ import axios from 'axios';
 import _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import notifier from 'node-notifier';
-import { JenkinsService } from './jenkins.service';
-import { JiraService } from './jira.service';
+import { JenkinsService } from '../services/jenkins.service';
+import { JiraService } from '../services/jira.service';
 
-const STATE_RUNNING = 'RUNNING';
-const STATE_FINISHED = 'FINISHED';
-const STATE_QUEUED = 'QUEUED';
-
-declare interface JenkinsRun {
-  id: string,
-  pipeline: string,
-  state: string,
-  changeSet: {}[],
-  result: string,
-  causes: {
-    shortDescription: string,
-  }[]
-}
-
-declare interface JiraIssue {
-  id: string,
-  key: string,
-  fields: {
-    summary: string,
-    updated: string,
-  }
-}
-
-declare interface JiraChangelog {
-  author: JiraAuthorProfile,
-  created: string,
-  items: {
-    field: string,
-    fieldtype: string,
-    fromString?: string,
-    toString?: string,
-  }[],
-}
-
-declare interface JiraAuthorProfile {
-  displayName: string,
-  emailAddress: string,
-}
-
-declare interface JiraIssueComment {
-  id: string,
-  author: JiraAuthorProfile,
-  body: {
-    version: number,
-    type: string,
-  },
-  created: string,
-  updated: string,
-}
 
 @Injectable()
 export class TasksService {
@@ -84,12 +34,7 @@ export class TasksService {
     }
 
     await jobs.split(',').forEach(async job => {
-      const { data }: { data: JenkinsRun[] } = await axios.get(`${host}/blue/rest/organizations/jenkins/pipelines/${job}/runs/`, {
-        auth: {
-          username,
-          password,
-        }
-      });
+      const { data } = await this.jenkinsService.getRuns(job);
 
       let contentArr: string[] = data.reverse().filter(element => {
         const pipeline = decodeURIComponent(element.pipeline)
@@ -135,12 +80,13 @@ export class TasksService {
       });
       if (dingdingToken && this.notifyEnabled[job] && contentArr.length) {
         const content = `${job} releases:\n${contentArr.join("\n")}`;
-        await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
-          msgtype: 'text',
-          text: {
-            content,
-          }
-        });
+        // await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
+        //   msgtype: 'text',
+        //   text: {
+        //     content,
+        //   }
+        // });
+        console.log(content);
       }
       this.notifyEnabled[job] = true;
     });
@@ -148,7 +94,7 @@ export class TasksService {
 
   @Cron('*/10 * * * * *')
   async loadJiraActivities() {
-    const { issues }: { issues: JiraIssue[] } = await this.jiraService.search();
+    const { issues } = await this.jiraService.search();
 
     const jiraLastRun = this.jiraLastRun;
     this.jiraLastRun = new Date();
@@ -169,13 +115,16 @@ export class TasksService {
       const issue = filteredIssues[i];
       const { fields } = issue;
 
+      const created = new Date(fields.created);
       const updated = new Date(fields.updated);
 
-      const { values }: { values: JiraChangelog[] } = await this.jiraService.changelog(issue.key);
-      const { comments }: { comments: JiraIssueComment[] } = await this.jiraService.comments(issue.key);
-      console.log(issue.key, fields.summary, updated);
+      const { values } = await this.jiraService.changelog(issue.key);
+      const { comments } = await this.jiraService.comments(issue.key);
+      // console.log(issue.key, fields.summary, updated);
 
-      let finalContent = `Title: [${issue.key}] ${fields.summary}\n`;
+      const isCreated = jiraLastRun.getTime() < created.getTime();
+
+      let finalContent = (isCreated ? '[NEW] ' : '') + `[${issue.key}] ${fields.summary}\n`;
 
       finalContent += values.filter(value => {
         const created = new Date(value.created);
@@ -187,7 +136,7 @@ export class TasksService {
         return true;
       }).map(value => {
         const created = new Date(value.created);
-        console.log(value, jiraLastRun, created)
+        // console.log(value, jiraLastRun, created)
         const content = value.items.map(item => {
           const { field } = item;
 
@@ -196,22 +145,27 @@ export class TasksService {
         return `Author: ${value.author.displayName}\n${content}\n`;
       }).join("\n");
 
-      comments.filter(comment => {
+      finalContent += comments.filter(comment => {
         const updated = new Date(comment.updated);
         if (jiraLastRun.getTime() >= updated.getTime() || this.jiraLastRun.getTime() < updated.getTime()) {
           return false;
         }
         return true;
-      });
+      }).map(comment => {
+
+        return `${comment.author.displayName}: ` + this.jiraService.parseJiraDoc(comment.body);
+      }).join("\n");
+
+      finalContent += "\n";
 
       const { dingtalkToken2 } = this.configService.get<any>('jenkins');
-      const { data } = await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingtalkToken2}`, {
-        msgtype: 'text',
-        text: {
-          content: finalContent,
-        }
-      });
-      console.log(finalContent, data);
+      // const { data } = await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingtalkToken2}`, {
+      //   msgtype: 'text',
+      //   text: {
+      //     content: finalContent,
+      //   }
+      // });
+      console.log(finalContent);
     }
   }
 }

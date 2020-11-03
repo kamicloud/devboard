@@ -12,5 +12,6 @@ export default () => ({
     endpoint: process.env.JIRA_ENDPOINT,
     username: process.env.JIRA_USERNAME,
     password: process.env.JIRA_PASSWORD,
+    projectId: process.env.JIRA_PROJECT_ID,
   }
 });
