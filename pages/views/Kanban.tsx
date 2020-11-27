@@ -1,27 +1,64 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { NextPage, NextPageContext } from 'next';
-import { Table, Radio, Divider } from 'antd';
-
-interface Props {
-  query: { name?: string };
-}
+import { Table, Radio, Divider, Avatar, Tooltip } from 'antd';
+import { Pages } from 'src/pages';
 
 const columns = [
   {
     title: 'ID',
     dataIndex: 'id',
-    render: (text) => {
-      return text;
+    render: (field) => {
+      return field;
     }
   },
   {
     title: 'Name',
     dataIndex: 'key',
-    render: (text, model) => {
-      return `[${text}] ${model.fields.summary}`;
+    render: (field, model) => {
+      return `[${field}] ${model.fields.summary}`;
     }
   },
+  {
+    title: 'Description',
+    dataIndex: 'fields',
+    render: (field, model) => {
+      return ``;
+    }
+  },
+  {
+    title: 'Status',
+    dataIndex: 'fields',
+    render: (field) => {
+      if (!field || !field.status) {
+        return '';
+      }
+
+      const { status } = field;
+
+      return <React.Fragment>
+        <Tooltip title={status.description} placement="top">
+          <Avatar src={status.iconUrl} />
+          {` ${status.name}`}
+        </Tooltip>
+      </React.Fragment>;
+    }
+  },
+  {
+    title: 'Assignee',
+    dataIndex: 'fields',
+    render: (field) => {
+      if (!field || !field.assignee) {
+        return '';
+      }
+
+      const { assignee } = field;
+      return <React.Fragment>
+        <Avatar src={assignee.avatarUrls['48x48']} />
+        {` ${assignee.displayName}`}
+      </React.Fragment>;
+    }
+  }
 ];
 
 const rowSelection = {
@@ -35,8 +72,7 @@ const rowSelection = {
   }),
 };
 
-const Kanban: NextPage<Props> = ({ query }) => {
-  const greetName = query.name ? query.name : 'World';
+const Kanban: NextPage<Pages.KanbanPageProps> = ({ issues }) => {
   const [selectionType, setSelectionType] = useState('checkbox');
   return <div>
     <Radio.Group
@@ -53,15 +89,17 @@ const Kanban: NextPage<Props> = ({ query }) => {
 
     <Table
       columns={columns}
-      dataSource={query.issues.issues}
+      dataSource={issues.issues}
     />
   </div>;
 };
 
-Kanban.getInitialProps = async (ctx: NextPageContext) => {
+Kanban.getInitialProps = async (ctx: NextPageContext & {
+  query: Pages.KanbanPageProps
+}) => {
   const { query } = ctx;
-  console.log('query', query)
-  return { query };
+
+  return query;
 };
 
 export default Kanban;

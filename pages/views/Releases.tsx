@@ -4,17 +4,7 @@ import { NextPage, NextPageContext } from 'next';
 import { Table, Radio, Divider, Button, Input, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
-
-interface Props {
-  query: {
-    name?: string,
-    releases: {
-      sha: string,
-      date: string,
-      message: string,
-    }[]
-  };
-}
+import { Pages } from 'src/pages';
 
 const dataIndex = 'name';
 const rowSelection = {
@@ -133,8 +123,7 @@ const ReleasesTable = (props) => {
     </div>
   );
 };
-const Index: NextPage<Props> = ({ query }) => {
-  console.log(query)
+const Releases: NextPage<Pages.ReleasesPageProps> = ({ query }) => {
   return <div>
     <ReleasesTable
       data={query.releases}
@@ -142,9 +131,9 @@ const Index: NextPage<Props> = ({ query }) => {
   </div>;
 };
 
-Index.getInitialProps = async (ctx: Props & NextPageContext) => {
+Releases.getInitialProps = async (ctx: NextPageContext & Pages.ReleasesPageProps) => {
   const { query } = ctx;
   return { query };
 };
 
-export default Index;
+export default Releases;

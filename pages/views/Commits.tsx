@@ -2,17 +2,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { NextPage, NextPageContext } from 'next';
 import { Table, Radio, Divider, Button } from 'antd';
-
-interface Props {
-  query: {
-    name?: string,
-    commits: {
-      sha: string,
-      date: string,
-      message: string,
-    }[]
-  };
-}
+import Axios from 'axios';
+import { Pages } from 'src/pages';
 
 const columns = [
   {
@@ -28,7 +19,8 @@ const columns = [
     title: 'Message',
     dataIndex: 'message',
     render: text => {
-    return <pre>{text.split("\n\n")[0]}</pre>},
+      return <pre>{text.split("\n\n")[0]}</pre>
+    },
   },
   {
     title: 'Author',
@@ -59,7 +51,17 @@ const CommitsTable = (props) => {
 
   return (
     <div>
+      Branch: {props.branch}
       <Button>CherryPick</Button>
+      <Button onClick={() => {
+        Axios.get('/api/releases/pull', {
+          params: {
+            repository: 'sincerely-snapi'
+          }
+        }).then(({ data }) => {
+          console.log(data);
+        })
+      }}>Pull</Button>
       <Divider />
 
       <Table
@@ -71,21 +73,23 @@ const CommitsTable = (props) => {
         expandable={{
           expandedRowRender: record => <pre>{record.message}</pre>,
         }}
-        />
-    </div>
+      />
+    </div >
   );
 };
-const Index: NextPage<Props> = ({ query }) => {
+const Commits: NextPage<Pages.CommitsPageProps> = ({ commits }) => {
   return <div>
     <CommitsTable
-      commits={query.commits}
+      commits={commits}
     />
   </div>;
 };
 
-Index.getInitialProps = async (ctx: Props & NextPageContext) => {
+Commits.getInitialProps = async (ctx: NextPageContext & {
+  query: Pages.CommitsPageProps,
+}) => {
   const { query } = ctx;
-  return { query };
+  return query;
 };
 
-export default Index;
+export default Commits;

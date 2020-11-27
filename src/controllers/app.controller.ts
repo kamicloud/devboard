@@ -1,13 +1,15 @@
 import { Controller, Get, Query, Render, Param } from '@nestjs/common';
-import AWS from 'aws-sdk';
-import Git from 'nodegit';
-import RepositoryUtil from '../utils/repositoryUtil';
-import YAML from 'yamljs';
-const { Octokit } = require("@octokit/rest");
-import config from '../utils/configUtil';
+import { GithubService } from '../services/github.service';
+import { NodegitService } from '../services/nodegit.service';
 
 @Controller('app')
 export class AppController {
+  constructor(
+    private readonly githubService: GithubService,
+    private readonly nodegitService: NodegitService
+  ) {
+  }
+
   @Render('Index')
   @Get()
   public index(@Query('name') name?: string) {
@@ -19,51 +21,5 @@ export class AppController {
     //     console.log(error, result)
     // });
     return { name };
-  }
-
-  @Render('Commits')
-  @Get(':repository/commits')
-  public async commits(@Param() params, @Query('branch') branch?: string) {
-    const repository = params.repository;
-    const repositoryConfig = config.getRepositoryConfig(repository);
-    if (!branch) {
-      branch = 'master';
-    }
-
-    const octokit = new Octokit({
-      auth: repositoryConfig.token,
-    });
-
-    const remote = await octokit.repos.listBranches({
-      owner: repositoryConfig.orgnization,
-      repo: repositoryConfig.name,
-    });
-    // console.log(remote.data);
-
-    const remoteReleases = await octokit
-      .paginate(octokit.repos.listReleases, {
-        owner: repositoryConfig.orgnization,
-        repo: repositoryConfig.name,
-        per_page: 100,
-      });
-
-    // console.log(remoteReleases);
-    console.log(remoteReleases.map(release => release.name).filter((r) => r.startsWith('preview')).sort().reverse(), remoteReleases[0])
-
-    const commits = await RepositoryUtil.getRepositoryCommits(repository, branch);
-    return {
-      tags: remoteReleases.data,
-      branches: remote.data,
-      commits: commits
-    };
-  }
-
-  @Get(':repository/clone')
-  public async clone(@Param() params, @Query('force') force?: boolean) {
-    RepositoryUtil.cloneRepository(params.repository, force);
-
-    return {
-      message: 'please wait till it done',
-    }
   }
 }
