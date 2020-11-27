@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import Next from 'next';
+import { LoggerModule } from 'nestjs-pino';
 import { ApiModule } from './api.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TasksService } from '../console/tasks.service';
+import { TasksSchedule } from '../console/schedules/tasks.schedule';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { HomeModule } from './home.module';
@@ -16,13 +17,14 @@ import { SharedModule } from './shared.module';
       isGlobal: true,
       load: [configuration],
     }),
+    LoggerModule.forRoot(),
     SharedModule,
     ScheduleModule.forRoot(),
     ApiModule,
     HomeModule,
   ],
   providers: [
-    TasksService,
+    TasksSchedule,
   ],
   exports: [
   ]

@@ -10,14 +10,26 @@ export class JenkinsService {
   ) {
   }
 
-  public async getRuns(job: string) {
+  public async getRuns(job: string): Promise<{ data: Jenkins.Run[] }> {
     const { username, password, host } = this.configService.get<any>('jenkins');
-    const { data }: { data: Jenkins.Run[] } = await axios.get(`${host}/blue/rest/organizations/jenkins/pipelines/${job}/runs/`, {
+    let res = await axios.get(`${host}/blue/rest/organizations/jenkins/pipelines/${job}/runs/`, {
       auth: {
         username,
         password,
       }
+    }).catch((error: Error) => {
+      console.log(error.message, error.stack, error.name)
     });
+
+    if (!res) {
+      return { data: [] };
+    }
+
+    let { data } = res;
+
+    if (typeof data === 'string') {
+        data = JSON.parse(data)
+    }
 
     return { data };
   }

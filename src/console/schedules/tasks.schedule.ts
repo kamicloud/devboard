@@ -1,16 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import axios from 'axios';
+import { Logger } from "nestjs-pino";
 import _ from 'lodash';
+import { Console, Command, createSpinner, ConsoleService } from 'nestjs-console';
 import { ConfigService } from '@nestjs/config';
 import notifier from 'node-notifier';
-import { JenkinsService } from '../services/jenkins.service';
-import { JiraService } from '../services/jira.service';
+import { JenkinsService } from '../../services/jenkins.service';
+import { JiraService } from '../../services/jira.service';
 
 
+@Console({
+  name: 'tasks',
+  description: 'tasks schedule',
+})
 @Injectable()
-export class TasksService {
-  private readonly logger = new Logger(TasksService.name);
+export class TasksSchedule {
   private temp = {};
   private notifyEnabled = {};
   private jiraActivitiesMap = {};
@@ -18,6 +22,7 @@ export class TasksService {
   private jiraLastRun: Date = new Date();
 
   constructor(
+    private readonly logger: Logger,
     private configService: ConfigService,
     private jenkinsService: JenkinsService,
     private jiraService: JiraService
@@ -25,16 +30,21 @@ export class TasksService {
     this.jiraLastRun = new Date();
   }
 
+  @Command({
+    command: 'jenkins',
+    description: 'Command for jenkins'
+  })
   @Cron('*/10 * * * * *')
   async loadJenkinsActivities() {
-    const { enabled, username, password, host, jobs, dingdingToken } = this.configService.get<any>('jenkins');
+    this.logger.log('jenkins started');
+    const { enabled, jobs, dingdingToken } = this.configService.get<any>('jenkins');
 
     if (!enabled) {
       return;
     }
 
-    await jobs.split(',').forEach(async job => {
-      const { data } = await this.jenkinsService.getRuns(job);
+    for (const job of jobs.split(',')) {
+      const {data} = await this.jenkinsService.getRuns(job);
 
       let contentArr: string[] = data.reverse().filter(element => {
         const pipeline = decodeURIComponent(element.pipeline)
@@ -78,22 +88,34 @@ export class TasksService {
 
         return content;
       });
-      if (dingdingToken && this.notifyEnabled[job] && contentArr.length) {
-        const content = `${job} releases:\n${contentArr.join("\n")}`;
-        // await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
-        //   msgtype: 'text',
-        //   text: {
-        //     content,
-        //   }
-        // });
-        console.log(content);
+
+      const content = contentArr.length ? `${job} releases:\n${contentArr.join("\n")}` : null;
+
+      if (!content) {
+        return;
       }
+
+      console.log(content);
+
+      // if (dingdingToken && this.notifyEnabled[job]) {
+      //   await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
+      //     msgtype: 'text',
+      //     text: {
+      //       content,
+      //     }
+      //   });
+      // }
       this.notifyEnabled[job] = true;
-    });
+    }
   }
 
+  @Command({
+    command: 'jira',
+    description: 'Command for jenkins'
+  })
   @Cron('*/10 * * * * *')
   async loadJiraActivities() {
+    this.logger.log('jira started');
     const { issues } = await this.jiraService.search();
 
     const jiraLastRun = this.jiraLastRun;
@@ -111,8 +133,7 @@ export class TasksService {
       return true;
     });
 
-    for (let i = 0; i < filteredIssues.length; i++) {
-      const issue = filteredIssues[i];
+    for (const issue of filteredIssues) {
       const { fields } = issue;
 
       const created = new Date(fields.created);

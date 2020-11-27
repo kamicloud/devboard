@@ -1,8 +1,7 @@
-// service.ts - a nestjs provider using console decorators
 import { Console, Command, createSpinner, ConsoleService } from 'nestjs-console';
 import { Injectable } from '@nestjs/common';
 
-// @Console()
+@Console()
 @Injectable()
 export class CommandService {
 
@@ -13,7 +12,7 @@ export class CommandService {
     // create a single command (See [npm commander arguments/options for more details])
     this.consoleService.createCommand(
       {
-        command: 'list <directory>',
+        command: 'list <directory> <a>',
         description: 'description'
       },
       this.listContent,
@@ -40,7 +39,7 @@ export class CommandService {
   }
 
   @Command({
-    command: 'list <directory>',
+    command: 'list <directory> <b>',
     description: 'List content of a directory'
   })
   async listContent(directory: string): Promise<void> {

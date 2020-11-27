@@ -1,29 +1,26 @@
 import { Module } from '@nestjs/common';
 import Next from 'next';
+import { LoggerModule } from 'nestjs-pino';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TasksSchedule } from './schedules/tasks.schedule';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
-import { CommandService } from '../console/command.service';
-import { ConsoleModule } from 'nestjs-console';
-import { SharedModule } from './shared.module';
+import { SharedModule } from '../modules/shared.module';
 
 @Module({
   imports: [
-    ConsoleModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
     }),
-    ScheduleModule.forRoot(),
+    LoggerModule.forRoot(),
     SharedModule,
+    ScheduleModule.forRoot(),
   ],
   providers: [
-    // ConsoleService,
-    CommandService,
+    TasksSchedule,
   ],
   exports: [
-    // ConsoleService,
-    CommandService,
   ]
 })
-export class CliModule {}
+export class AppModule {}
