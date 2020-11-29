@@ -10,10 +10,12 @@ export class KanbanController {
   @Render('Kanban')
   @Get()
   public async index(): Promise<Pages.KanbanPageProps> {
+    const groups = await this.jiraService.groups();
     const issues = await this.jiraService.search();
 
     return {
-      issues
+      groups,
+      issues,
     };
   }
 }

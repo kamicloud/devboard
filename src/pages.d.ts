@@ -1,6 +1,7 @@
 export declare namespace Pages {
   interface KanbanPageProps {
     // query: { name?: string };
+    groups: Jira.Group[],
     issues: {
       issues: Jira.Issue[],
     },
