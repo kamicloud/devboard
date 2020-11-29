@@ -13,6 +13,21 @@ export declare namespace Jira {
       summary: string,
       created: string,
       updated: string,
+      assignee: Jira.AuthorProfile,
+      status: Jira.IssueStatus,
+    },
+  }
+
+  interface IssueStatus {
+    description: string,
+    iconUrl: string,
+    name: string,
+    id: string,
+    statusCategory: {
+      id: number,
+      key: string,
+      colorName: string,
+      name: string,
     }
   }
 
@@ -28,8 +43,13 @@ export declare namespace Jira {
   }
 
   interface AuthorProfile {
+    self: string,
     displayName: string,
     emailAddress: string,
+    accountId: string,
+    active: boolean,
+    timeZone: string,
+    accountType: string,
   }
 
   interface IssueComment {

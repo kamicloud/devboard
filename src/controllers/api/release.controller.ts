@@ -1,6 +1,4 @@
 import { Controller, Get, Query, Render, Param, Req } from '@nestjs/common';
-import { Octokit } from '@octokit/rest';
-import config from '../../utils/configUtil';
 import { AppService } from '../../services/app.service';
 import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';

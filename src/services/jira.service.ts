@@ -18,17 +18,32 @@ export class JiraService {
 
   constructor(private configService: ConfigService) { }
 
-  async search() {
+  async search(assignee?: string, startAt = 0) {
     const { endpoint, username, password, projectId } = this.configService.get<any>('jira');
-    const { data }: { data: { issues: Jira.Issue[] } } = await axios.get(`${endpoint}${this.prefixV3}/search`, {
+
+    assignee = assignee ? `and assignee = "${assignee}"` : ''
+
+    const res = await axios.get(`${endpoint}${this.prefixV3}/search`, {
       auth: {
         username: username,
         password: password,
       },
       params: {
-        jql: `project = "${projectId}" order by updated DESC`,
+        jql: `project = "${projectId}" ${assignee} and status != "closed" order by updated DESC`,
+        startAt,
       }
+    }).catch(e => {
+      console.log(e.message)
     });
+
+    if (!res) {
+      return {
+        issues:[],
+      };
+    }
+
+    const { data }: { data: { issues: Jira.Issue[] } } = res;
+
     return data;
   }
 
@@ -41,7 +56,7 @@ export class JiraService {
         password: password,
       },
     }).catch(e => {
-      console.log('eee', e)
+      console.log(e.message)
     });
 
     if (!res) {
@@ -53,7 +68,7 @@ export class JiraService {
     return data.results;
   }
 
-  async groupMembers(id: string) {
+  async groupMembers(id: string): Promise<Jira.Member[]> {
     const { endpoint, username, password } = this.configService.get<any>('jira');
 
     const res = await axios.get(`${endpoint}${this.prefixWiki}/group/${id}/membersByGroupId`, {
