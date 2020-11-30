@@ -6,6 +6,13 @@ export declare namespace Jira {
     total: number,
   }
 
+  interface Avatar {
+    '48x48': string,
+    '24x24': string,
+    '16x16': string,
+    '32x32': string,
+  }
+
   interface Issue {
     id: string,
     key: string,
@@ -50,6 +57,7 @@ export declare namespace Jira {
     active: boolean,
     timeZone: string,
     accountType: string,
+    avatarUrls: Jira.Avatar,
   }
 
   interface IssueComment {

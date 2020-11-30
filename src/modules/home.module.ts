@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AppController } from '../controllers/app.controller';
 import { ReleaseController } from '../controllers/home/release.controller';
 import { SharedModule } from './shared.module';
@@ -12,6 +12,7 @@ import { KanbanController } from '../controllers/home/kanban.controller';
     //   isGlobal: true,
     //   load: [configuration],
     // }),
+    CacheModule.register(),
     SharedModule,
   ],
   controllers: [

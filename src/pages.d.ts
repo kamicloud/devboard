@@ -1,3 +1,10 @@
+import { ReposListBranchesResponseData } from '@octokit/types';
+
+interface Wrapper<T> {
+  list: T[],
+  data: {[index:string]: T},
+}
+
 export declare namespace Pages {
   interface KanbanPageProps {
     // query: { name?: string };
@@ -5,6 +12,8 @@ export declare namespace Pages {
       endpoint: string,
       projectId: string,
     },
+
+    branches: Wrapper<ReposListBranchesResponseData>,
     groups: Jira.Group[],
     issues: {
       issues: Jira.Issue[],
@@ -30,5 +39,9 @@ export declare namespace Pages {
       message: string,
     }[]
     branch: string,
+  }
+
+  interface PageLayoutProps {
+
   }
 }

@@ -13,7 +13,7 @@ export class ReleaseController {
     private readonly nodegitService: NodegitService
   ) {}
 
-  @Render('Releases')
+  @Render('releases')
   @Get()
   public async index(@Query('repository') repository: string) {
     let releases = await this.githubService.releases(repository);
@@ -27,7 +27,7 @@ export class ReleaseController {
     };
   }
 
-  @Render('Commits')
+  @Render('commits')
   @Get(':repository/commits')
   public async commits(@Param() params, @Query('branch') branch?: string) {
     const repository = params.repository;

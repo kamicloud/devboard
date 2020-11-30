@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { NextPage, NextPageContext } from 'next';
-import { Table, Radio, Divider, Avatar, Tooltip, Select } from 'antd';
+import { Table, Divider, Avatar, Tooltip, Select, Button } from 'antd';
 import { Pages } from 'src/pages';
 import { Jira } from 'src/type';
 import { useSelector, useDispatch } from 'react-redux'
-import Axios from 'axios';
+import PageLayout from '../components/PageLayout';
+import api from '../../api';
 
 const useCounter = () => {
   const count = useSelector((state: any) => state.count)
@@ -25,26 +26,15 @@ const useCounter = () => {
   return { count, increment, decrement, reset }
 }
 
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  getCheckboxProps: record => ({
-    disabled: record.name === 'Disabled User',
-    // Column configuration not to be checked
-    name: record.name,
-  }),
-};
-
 const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) => {
   const [userList, setUserList] = useState([]);
   const [assignee, setAsignee] = useState('');
   const [issues, setIssues] = useState(props.issues);
-  const [groups, setGroups] = useState(props.groups)
+  const [groups, setGroups] = useState(props.groups);
 
   const { count, increment, decrement, reset } = useCounter()
 
-  return <div>
+  return <PageLayout>
     <div>
       <h1>
         Count: <span>{count}</span>
@@ -57,11 +47,7 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
     <Select
       style={{ width: 200 }}
       onChange={async (value) => {
-        const { data } = await Axios.get('/api/kanban/group_members', {
-          params: {
-            id: value,
-          },
-        });
+        const data = await api.kanban.groupMembers(value);
 
         setUserList(data.groupMembers)
       }}
@@ -78,11 +64,8 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
         style={{ width: 200 }}
         onChange={async (value: string) => {
           setAsignee(value)
-          const { data } = await Axios.get('/api/kanban/issues', {
-            params: {
-              assignee: value,
-            }
-          })
+
+          const data = await api.kanban.issues(value);
 
           setIssues(data.issues)
         }}
@@ -105,6 +88,8 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
         return <>
           <a href={`${props.common.endpoint}/browse/${field}`} target='blanket'>{`[${field}]`}</a>
           {` ${model.fields.summary}`}
+          <br/>
+          {new Date(model.fields.updated).toUTCString()}
         </>
       }} />
       <Table.Column title='Description' dataIndex='fields' key='key' />
@@ -127,14 +112,21 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
           return '';
         }
 
-        const { assignee } = field;
+        const { assignee }: { assignee: Jira.AuthorProfile } = field;
         return <>
           <Avatar src={assignee.avatarUrls['48x48']} />
           {` ${assignee.displayName}`}
         </>;
       }} />
+      <Table.Column title='Operation' dataIndex='key' key='key' render={(field: string) => {
+        return (props.branches.data[field.toLowerCase()] ? <>
+          <Button>Create/Delete Branch</Button>
+          <Button>View Branch</Button>
+        </> : null)
+      }}
+      />
     </Table>
-  </div>;
+  </PageLayout>;
 };
 
 Kanban.getInitialProps = async (ctx: NextPageContext & {

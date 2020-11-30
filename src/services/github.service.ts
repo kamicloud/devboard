@@ -17,12 +17,14 @@ export class GithubService {
       auth: repositoryConfig.token,
     });
 
-    const remote = await octokit.repos.listBranches({
-      owner: repositoryConfig.orgnization,
-      repo: repositoryConfig.name,
-    });
+    const branches = await octokit
+      .paginate(octokit.repos.listBranches, {
+        owner: repositoryConfig.orgnization,
+        repo: repositoryConfig.name,
+        per_page: 100,
+      });
 
-    return remote.data;
+    return branches;
   }
 
   public async releases(repository) {
