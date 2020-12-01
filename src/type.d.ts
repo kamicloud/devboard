@@ -22,7 +22,15 @@ export declare namespace Jira {
       updated: string,
       assignee: Jira.AuthorProfile,
       status: Jira.IssueStatus,
+      priority: ?Jira.IssuePriority,
+      duedate: string,
     },
+  }
+
+  interface IssuePriority {
+    iconUrl: string,
+    name: string,
+    id: string,
   }
 
   interface IssueStatus {

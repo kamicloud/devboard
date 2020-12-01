@@ -89,7 +89,7 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
           <a href={`${props.common.endpoint}/browse/${field}`} target='blanket'>{`[${field}]`}</a>
           {` ${model.fields.summary}`}
           <br/>
-          {new Date(model.fields.updated).toUTCString()}
+          {new Date(model.fields.updated).toLocaleString()} <Avatar size='small' src={model.fields.priority.iconUrl} />{model.fields.duedate}
         </>
       }} />
       <Table.Column title='Description' dataIndex='fields' key='key' />
