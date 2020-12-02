@@ -22,15 +22,12 @@ export class JenkinsService {
       console.log(error.message, error.stack, error.name)
     });
 
-    if (!res) {
+    // sometimes data from jenkins api cutting off and parsed as string
+    if (!res || typeof res.data === 'string') {
       return { data: [] };
     }
 
     let { data } = res;
-
-    if (typeof data === 'string') {
-        data = JSON.parse(data)
-    }
 
     return { data };
   }

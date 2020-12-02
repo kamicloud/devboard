@@ -15,7 +15,10 @@ export class ReleaseController {
 
   @Render('releases')
   @Get()
-  public async index(@Query('repository') repository: string) {
+  public async index(
+    @Query('repository')
+    repository: string
+  ) {
     let releases = await this.githubService.releases(repository);
 
     releases = releases.sort((r1, r2) => {
@@ -29,7 +32,12 @@ export class ReleaseController {
 
   @Render('commits')
   @Get(':repository/commits')
-  public async commits(@Param() params, @Query('branch') branch?: string) {
+  public async commits(
+    @Param()
+    params,
+    @Query('branch')
+    branch?: string
+  ) {
     const repository = params.repository;
 
     if (!branch) {
@@ -47,7 +55,12 @@ export class ReleaseController {
   }
 
   @Get(':repository/clone')
-  public async clone(@Param() params, @Query('force') force?: boolean) {
+  public async clone(
+    @Param()
+    params,
+    @Query('force')
+    force?: boolean
+  ) {
     this.nodegitService.cloneRepository(params.repository, force);
 
     return {
