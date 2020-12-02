@@ -5,6 +5,7 @@ import { SharedModule } from './shared.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { KanbanController } from '../controllers/home/kanban.controller';
+import { TestController } from '../controllers/home/test.controller';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { KanbanController } from '../controllers/home/kanban.controller';
     AppController,
     KanbanController,
     ReleaseController,
+    TestController,
   ],
 })
 export class HomeModule {}

@@ -88,7 +88,7 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
         return <>
           <a href={`${props.common.endpoint}/browse/${field}`} target='blanket'>{`[${field}]`}</a>
           {` ${model.fields.summary}`}
-          <br/>
+          <br />
           {new Date(model.fields.updated).toLocaleString()} <Avatar size='small' src={model.fields.priority.iconUrl} />{model.fields.duedate}
         </>
       }} />
@@ -107,7 +107,21 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
       }
 
       } />
-      <Table.Column title='Assignee' dataIndex='fields' key='key' render={(field) => {
+      <Table.Column title='Components' dataIndex='fields' key='key' render={(field: Jira.IssueFields) => {
+        return (
+          <>
+            {field.components.map(component => {
+              return (
+                <Tooltip title={component.description} placement='top'>
+                  <p>{component.name}</p>
+                </Tooltip>
+              );
+            })}
+          </>
+        );
+      }}
+      />
+      <Table.Column title='Assignee' dataIndex='fields' key='key' render={field => {
         if (!field || !field.assignee) {
           return '';
         }

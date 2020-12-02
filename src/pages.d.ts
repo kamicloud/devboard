@@ -1,4 +1,6 @@
-import { ReposListBranchesResponseData } from '@octokit/types';
+import { Endpoints } from "@octokit/types";
+
+export type ReposListBranchesResponseData = Endpoints["GET /repos/{owner}/{repo}/branches"]["response"];
 
 interface Wrapper<T> {
   list: T[],

@@ -3,7 +3,7 @@ import { Logger } from "nestjs-pino";
 import _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
-import { ReposListBranchesResponseData } from '@octokit/types';
+import { ReposListBranchesResponseData } from '../pages';
 import { JiraService } from './jira.service';
 import { JenkinsService } from './jenkins.service';
 import { GithubService } from './github.service';

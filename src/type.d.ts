@@ -16,15 +16,24 @@ export declare namespace Jira {
   interface Issue {
     id: string,
     key: string,
-    fields: {
-      summary: string,
-      created: string,
-      updated: string,
-      assignee: Jira.AuthorProfile,
-      status: Jira.IssueStatus,
-      priority: ?Jira.IssuePriority,
-      duedate: string,
-    },
+    fields: Jira.IssueFields,
+  }
+
+  interface IssueFields {
+    summary: string,
+    created: string,
+    updated: string,
+    assignee: Jira.AuthorProfile,
+    status: Jira.IssueStatus,
+    priority: ?Jira.IssuePriority,
+    duedate: string,
+    components: Jira.IssueComponent[],
+  }
+
+  interface IssueComponent {
+    id: string,
+    name: string,
+    description: string,
   }
 
   interface IssuePriority {
