@@ -95,27 +95,23 @@ const Test = ({ query }) => {
                         const topHeight = mode === 2 || mode === 3 ? layerY - y - 10 : height
                         const leftWidth = mode === 1 || mode === 3 ? layerX - x - 10 : width
 
-                        if (mode === 1 || mode === 3) {
-                          if (layerX - x > 10) {
-                            rects.push({
-                              x: layerX + 10,
-                              y,
-                              width: rightWidth,
-                              height: topHeight,
-                            })
-                            rect.width = leftWidth;
-                          }
+                        if ((mode === 1 || mode === 3) && layerX - x > 10) {
+                          rects.push({
+                            x: layerX + 10,
+                            y,
+                            width: rightWidth,
+                            height: topHeight,
+                          })
+                          rect.width = leftWidth;
                         }
-                        if (mode === 2 || mode === 3) {
-                          if (layerY - y > 10) {
-                            rects.push({
-                              x,
-                              y: layerY + 10,
-                              width: leftWidth,
-                              height: bottomHeight,
-                            })
-                            rect.height = topHeight;
-                          }
+                        if ((mode === 2 || mode === 3) && layerY - y > 10) {
+                          rects.push({
+                            x,
+                            y: layerY + 10,
+                            width: leftWidth,
+                            height: bottomHeight,
+                          })
+                          rect.height = topHeight;
                         }
 
                         if (mode === 3) {
@@ -124,7 +120,6 @@ const Test = ({ query }) => {
                             y: layerY + 10,
                             width: rightWidth,
                             height: bottomHeight,
-
                           })
                         }
                         setRects([...rects])
