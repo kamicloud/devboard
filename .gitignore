@@ -1,6 +1,7 @@
-/node_modules/
-.next/
-/repository.yaml
 /.access.json
-.env
+/.idea
+/.next/
 /documentation/
+/node_modules/
+/repository.yaml
+.env
