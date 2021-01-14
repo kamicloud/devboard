@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { NextPage, NextPageContext } from 'next';
 import { Table, Radio, Divider, Button, Input, Space, Select } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
@@ -13,9 +13,16 @@ const MODE_VERTICAL = 2;
 const MODE_CROSS = 3;
 
 const Test = ({ query }) => {
-  const [config, setConfig] = useState({
+  useEffect(() => {
+
+  }, []);
+  const [canvas, setCanvas] = useState({
+    draggablePointRadius: 3,
     width: 1600,
     height: 900,
+  })
+  const [config, setConfig] = useState({
+    border: 20,
   })
   const [tool, setTool] = useState({
     mode: 0,
@@ -29,18 +36,15 @@ const Test = ({ query }) => {
       y: 0,
     },
   })
-  const [draggablePointRadius] = useState(3)
-  const [border] = useState(20);
+  const { border } = config;
 
   const initRects = () => {
-    return [
-      {
-        x: border,
-        y: border,
-        width: config.width - border * 2,
-        height: config.height - border * 2,
-      },
-    ];
+    return [{
+      x: border,
+      y: border,
+      width: canvas.width - border * 2,
+      height: canvas.height - border * 2,
+    }];
   }
 
   const [rects, setRects] = useState(initRects());
@@ -84,11 +88,11 @@ const Test = ({ query }) => {
 
   return (
     <>
-      <Input value={config.width} type='number' onChange={e => {
-        setConfig({ ...config, width: parseInt(e.target.value) })
+      <Input value={canvas.width} type='number' onChange={e => {
+        setCanvas({ ...canvas, width: parseInt(e.target.value) })
       }} />
-      <Input value={config.height} type='number' onChange={e => {
-        setConfig({ ...config, height: parseInt(e.target.value) })
+      <Input value={canvas.height} type='number' onChange={e => {
+        setCanvas({ ...canvas, height: parseInt(e.target.value) })
       }} />
       <Button onClick={() => {
         setRects(initRects())
@@ -102,7 +106,7 @@ const Test = ({ query }) => {
         <Select.Option value={MODE_CROSS}>Cross</Select.Option>
       </Select>
       <Button onClick={() => {
-        setConfig(config)
+        setCanvas(canvas)
         setRects(rects.map(rect => {
           return {
             x: rect.y,
@@ -113,21 +117,20 @@ const Test = ({ query }) => {
         }))
       }}>Rotate</Button>
       <div style={{
-        width: config.width,
-        height: config.height,
+        width: canvas.width,
+        height: canvas.height,
         border: '1px solid black',
       }}>
         <Stage
-        width={config.width}
-        height={config.height}
-        ref={stage}
-        scale={{x:0.5, y:0.5}}
+          width={canvas.width}
+          height={canvas.height}
+          ref={stage}
         >
           <Layer>
             {
               rects.map((rect, i) => {
                 return (
-                  <>
+                  <React.Fragment key={i}>
                     <Rect
                       {...rect}
                       fill='lightblue'
@@ -189,7 +192,7 @@ const Test = ({ query }) => {
                     />
                     <Circle
                       draggable
-                      radius={draggablePointRadius}
+                      radius={canvas.draggablePointRadius}
                       x={rect.x}
                       y={rect.y}
                       fill='black'
@@ -201,7 +204,7 @@ const Test = ({ query }) => {
                     />
                     <Circle
                       draggable
-                      radius={draggablePointRadius}
+                      radius={canvas.draggablePointRadius}
                       x={rect.x}
                       y={rect.y + rect.height}
                       fill='black'
@@ -213,7 +216,7 @@ const Test = ({ query }) => {
                     />
                     <Circle
                       draggable
-                      radius={draggablePointRadius}
+                      radius={canvas.draggablePointRadius}
                       x={rect.x + rect.width}
                       y={rect.y}
                       fill='black'
@@ -225,7 +228,7 @@ const Test = ({ query }) => {
                     />
                     <Circle
                       draggable
-                      radius={draggablePointRadius}
+                      radius={canvas.draggablePointRadius}
                       x={rect.x + rect.width}
                       y={rect.y + rect.height}
                       fill='black'
@@ -253,7 +256,7 @@ const Test = ({ query }) => {
                       align='center'
                       verticalAlign='middle'
                     /> */}
-                  </>
+                  </React.Fragment>
                 )
               })
             }
@@ -277,7 +280,7 @@ const Test = ({ query }) => {
                 shadowOpacity={0.2}
               />
               <Text
-                text={`${parseInt((tool.sizeTip.rect.width / config.width * 1000000).toString()) / 10000}%,${parseInt((tool.sizeTip.rect.height / config.height * 1000000).toString()) / 10000}%`}
+                text={`${parseInt((tool.sizeTip.rect.width / canvas.width * 1000000).toString()) / 10000}%,${parseInt((tool.sizeTip.rect.height / canvas.height * 1000000).toString()) / 10000}%`}
                 fontFamily='Calibri'
                 fontSize={18}
                 padding={5}
