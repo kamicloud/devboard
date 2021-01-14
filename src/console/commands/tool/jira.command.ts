@@ -5,7 +5,9 @@ import { JenkinsService } from 'src/services/jenkins.service';
 import { JiraService } from 'src/services/jira.service';
 import { GithubService } from 'src/services/github.service';
 
-@Console()
+@Console({
+  name: 'tool',
+})
 @Injectable()
 export class JiraCommand {
   constructor(
@@ -20,13 +22,13 @@ export class JiraCommand {
   }
 
   @Command({
-    command: 'test',
+    command: 'jira',
     description: 'Test command for debug.'
   })
   async handle(): Promise<void> {
     const accountId = '5f0836dab545e20015763c7e';
-    for (let i = 0; i < 10; i++) {
-      const issues = (await this.jiraService.search('', 50 * i)).issues;
+    for (let i = 0; i < 100; i++) {
+      const issues = (await this.jiraService.search('', 50 * i, '12512')).issues;
 
       for (const issue of issues) {
         const comments = await this.jiraService.comments(issue.id);

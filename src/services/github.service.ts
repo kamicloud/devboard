@@ -10,6 +10,22 @@ export class GithubService {
   ) {
   }
 
+  public async commits(repository, branch = 'master') {
+    const repositoryConfig = config.getRepositoryConfig(repository);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const {data} = await octokit.repos.listCommits({
+      owner: repositoryConfig.orgnization,
+      repo: repositoryConfig.name,
+      sha: branch,
+    });
+
+    return data;
+  }
+
   public async branches(repository) {
     const repositoryConfig = config.getRepositoryConfig(repository);
 

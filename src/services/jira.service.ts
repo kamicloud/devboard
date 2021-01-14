@@ -18,10 +18,20 @@ export class JiraService {
 
   constructor(private configService: ConfigService) { }
 
-  async search(assignee?: string, startAt = 0) {
-    const { endpoint, username, password, projectId } = this.configService.get<any>('jira');
+  async search(assignee?: string, startAt = 0, projectId?: string) {
+    const { endpoint, username, password } = this.configService.get<any>('jira');
 
-    assignee = assignee ? `and assignee = "${assignee}"` : ''
+    const wheres = [];
+
+    if (projectId) {
+      wheres.push(`project = "${projectId}"`);
+    }
+
+    if (assignee) {
+      wheres.push(`assignee = "${assignee}"`);
+    }
+
+    // wheres.push('status != "closed"')
 
     const res = await axios.get(`${endpoint}${this.prefixV3}/search`, {
       auth: {
@@ -29,7 +39,7 @@ export class JiraService {
         password: password,
       },
       params: {
-        jql: `project = "${projectId}" ${assignee} and status != "closed" order by updated DESC`,
+        jql: `${wheres.join(' and ')} order by updated DESC`,
         startAt,
       }
     }).catch(e => {
