@@ -13,5 +13,11 @@ export default () => ({
     username: process.env.JIRA_USERNAME,
     password: process.env.JIRA_PASSWORD,
     projectId: process.env.JIRA_PROJECT_ID,
+  },
+  database: {
+    host: process.env.DB_HOST,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
   }
 });

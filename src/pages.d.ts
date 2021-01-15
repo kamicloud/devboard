@@ -1,7 +1,4 @@
-import { Endpoints } from "@octokit/types";
-
-export type ReposListBranchesResponseData = Endpoints["GET /repos/{owner}/{repo}/branches"]["response"]['data'];
-export type CommitsListResponseData = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"]['data'];
+import Github from './type';
 
 interface Wrapper<T> {
   list: T[],
@@ -10,7 +7,7 @@ interface Wrapper<T> {
 
 export declare namespace Pages {
   interface DeployPageProps {
-    branches: ReposListBranchesResponseData,
+    branches: Github.ReposListBranchesResponseData,
     commits: CommitsListResponseData,
     owner: string,
     repository: string,
@@ -22,6 +19,7 @@ export declare namespace Pages {
       live: string[],
     },
     gitDeployHistories: any[],
+    gitHotfixedCommits: any[],
   }
 
   interface KanbanPageProps {
@@ -31,7 +29,7 @@ export declare namespace Pages {
       projectId: string,
     },
 
-    branches: Wrapper<ReposListBranchesResponseData>,
+    branches: Wrapper<Github.ReposListBranchesResponseData>,
     groups: Jira.Group[],
     issues: {
       issues: Jira.Issue[],

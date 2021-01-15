@@ -3,7 +3,7 @@ import { Logger } from "nestjs-pino";
 import _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
-import { ReposListBranchesResponseData } from '../pages';
+import { Github } from '../type';
 import { JiraService } from './jira.service';
 import { JenkinsService } from './jenkins.service';
 import { GithubService } from './github.service';
@@ -21,7 +21,7 @@ export class CacheService {
   ) {
   }
 
-  async getbranches(): Promise<ReposListBranchesResponseData[]> {
+  async getbranches(): Promise<Github.ReposListBranchesResponseData> {
     const branches = await this.cacheManager.get('branches');
 
     if (!branches) {

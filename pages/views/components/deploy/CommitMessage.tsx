@@ -10,6 +10,10 @@ const CommitMessage: React.FC<{
   date: string,
   author: string
 }> = (props) => {
+  if (!props.commitMessage) {
+    return null;
+  }
+
   const pullRequests = props.commitMessage.match(/\(#\d+\)/g)
   const messages = props.commitMessage.split(/\(#\d+\)/)
   return <>

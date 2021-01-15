@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Octokit } from '@octokit/rest';
 import config from '../utils/configUtil';
+import { Github } from 'src/type';
 
 @Injectable()
 export class GithubService {
@@ -10,20 +11,30 @@ export class GithubService {
   ) {
   }
 
-  public async commits(repository, branch = 'master') {
+  public async commits(
+    repository,
+    branch = 'master',
+    takePage = 3
+  ): Promise<Github.CommitsListResponseData> {
     const repositoryConfig = config.getRepositoryConfig(repository);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
     });
 
-    const {data} = await octokit.repos.listCommits({
-      owner: repositoryConfig.orgnization,
-      repo: repositoryConfig.name,
-      sha: branch,
-    });
+    let res = [];
+    for (let page = 1; page <= takePage; page++) {
+      const { data } = await octokit.repos.listCommits({
+        owner: repositoryConfig.orgnization,
+        repo: repositoryConfig.name,
+        sha: branch,
+        per_page: 100,
+        page,
+      });
+      res = res.concat(data);
+    }
 
-    return data;
+    return res;
   }
 
   public async branches(repository) {

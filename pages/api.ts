@@ -21,5 +21,28 @@ export default {
 
       return data;
     }
-  }
+  },
+  deploy: {
+    index: async (repository, branch) => {
+      const { data } = await Axios.get('/api/deploy', {
+        params: {
+          repository,
+          branch,
+        }
+      })
+
+      return data;
+    },
+    histories: async (repository, branch, site) => {
+      const { data } = await Axios.get('/api/deploy/histories', {
+        params: {
+          repository,
+          branch,
+          site,
+        }
+      })
+
+      return data;
+    }
+  },
 }

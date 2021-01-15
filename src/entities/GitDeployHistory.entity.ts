@@ -45,4 +45,7 @@ export class GitDeployHistory {
 
   @Column()
   release: string;
+
+  @Column({ name: 'is_hidden' })
+  isHidden: boolean;
 }

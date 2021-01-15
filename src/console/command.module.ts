@@ -6,8 +6,7 @@ import { TasksSchedule } from './schedules/tasks.schedule';
 import { SharedModule } from '../modules/shared.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/config/configuration';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { GitDeployHistory } from 'src/entities/GitDeployHistory.entity';
+import { DatabaseModule } from '../modules/database.module';
 import { JiraCommand } from './commands/tool/jira.command';
 
 @Module({
@@ -19,6 +18,7 @@ import { JiraCommand } from './commands/tool/jira.command';
     LoggerModule.forRoot(),
     ConsoleModule,
     SharedModule,
+    DatabaseModule,
   ],
   providers: [
     JiraCommand,

@@ -1,4 +1,11 @@
 
+import { Endpoints } from "@octokit/types";
+
+export declare namespace Github {
+  declare type ReposListBranchesResponseData = Endpoints["GET /repos/{owner}/{repo}/branches"]["response"]['data']
+  declare type CommitsListResponseData = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"]['data']
+}
+
 export declare namespace Jira {
   interface Pagination {
     startAt: number,

@@ -7,8 +7,7 @@ import configuration from '../config/configuration';
 import { KanbanController } from '../controllers/home/kanban.controller';
 import { TestController } from '../controllers/home/test.controller';
 import { DeployController } from '../controllers/home/deploy.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
+import { DatabaseModule } from './database.module';
 
 @Module({
   imports: [
@@ -18,6 +17,7 @@ import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
     // }),
     CacheModule.register(),
     SharedModule,
+    DatabaseModule,
   ],
   controllers: [
     AppController,
@@ -25,6 +25,8 @@ import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
     KanbanController,
     ReleaseController,
     TestController,
+  ],
+  providers: [
   ],
 })
 export class HomeModule {}

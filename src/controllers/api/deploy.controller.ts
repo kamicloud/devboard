@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Render, Param, Req, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Query, Render, Param, Req, Inject } from '@nestjs/common';
 import { AppService } from '../../services/app.service';
 import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
@@ -7,9 +7,8 @@ import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
 import { Repository } from 'typeorm';
 import { Pages } from '../../pages';
 import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
-import _ from 'lodash';
 
-@Controller('deploy')
+@Controller('api/deploy')
 export class DeployController {
   constructor(
     private readonly appService: AppService,
@@ -21,7 +20,6 @@ export class DeployController {
     private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
   ) { }
 
-  @Render('pages/deploy')
   @Get()
   public async index(
     @Query('repository')
@@ -35,15 +33,6 @@ export class DeployController {
     const repositories = [
       repository,
     ];
-
-    const gitHotfixedCommits = (await this.gitHotfixedCommitRepository.find({
-      where: {
-        repository: 'sincerely',
-      },
-    })).map(gitHotfixedCommit => {
-      gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
-      return gitHotfixedCommit;
-    });
     const gitDeployHistories = await this.gitDeployHistoryRepository.find({
       where: {
         repository: 'sincerely',
@@ -55,30 +44,64 @@ export class DeployController {
       take: 1000,
     });
 
-    const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits, 'branch');
-    let filterHotfix = false;
+    const gitHotfixedCommits = await this.gitHotfixedCommitRepository.find({
+      where: {
+        repository: 'sincerely',
+        parentBranch: branch,
+      },
+    });
+
+
 
     return {
       branches,
-      commits: commits.filter((commit) => {
-        if (hotfixedGroupByBranch[branch]) {
-          if (filterHotfix || hotfixedGroupByBranch[branch].sha === commit.sha) {
-            filterHotfix = true;
-
-            return false;
-          }
-        }
-        return true;
-      }),
+      commits,
       owner: repositoryConfig.orgnization,
       repository,
       branch,
       repositories,
       sites: repositoryConfig.sites,
       gitDeployHistories,
-      gitHotfixedCommits: gitHotfixedCommits.filter(gitHotfixedCommit => {
-        return gitHotfixedCommit.parentBranch === branch;
-      }),
+      gitHotfixedCommits,
     }
+  }
+
+  @Get('histories')
+  public async histories(
+    @Query('repository')
+    repository: string,
+    @Query('branch')
+    branch: string = 'master',
+    @Query('site')
+    site: string
+  ) {
+    const gitDeployHistories = await this.gitDeployHistoryRepository
+      .createQueryBuilder()
+      .where('repository=:repository', { repository: 'sincerely' })
+      .andWhere('branch=:branch', { branch })
+      .andWhere('site_name=:siteName', { siteName: site })
+      .andWhere('is_hidden=:isHidden', { isHidden: false })
+      .orderBy('id', 'DESC')
+      .limit(20)
+      .getMany();
+
+    return {
+      gitDeployHistories
+    }
+  }
+
+  @Get('pull')
+  public async pullToStage() {
+
+  }
+
+  @Post()
+  public async deploy() {
+
+  }
+
+  @Post('create-branch')
+  public async createBranch() {
+
   }
 }
