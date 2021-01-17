@@ -27,10 +27,7 @@ export class KanbanController {
         endpoint,
         projectId,
       },
-      branches: {
-        list: branches,
-        data: _.keyBy(branches, 'name'),
-      },
+      branches,
       groups,
       issues,
     };

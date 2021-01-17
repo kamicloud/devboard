@@ -7,6 +7,7 @@ import { Jira } from 'src/type';
 import { useSelector, useDispatch } from 'react-redux'
 import PageLayout from '../components/PageLayout';
 import api from '../../api';
+import _ from 'lodash';
 
 const useCounter = () => {
   const count = useSelector((state: any) => state.count)
@@ -33,6 +34,8 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
   const [groups, setGroups] = useState(props.groups);
 
   const { count, increment, decrement, reset } = useCounter()
+
+  const branchMap = _.keyBy(props.branches, 'name')
 
   return <PageLayout>
     <div>
@@ -135,7 +138,7 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
         </>;
       }} />
       <Table.Column title='Operation' dataIndex='key' key='key' render={(field: string) => {
-        return (props.branches.data[field.toLowerCase()] ? <>
+        return (branchMap[field.toLowerCase()] ? <>
           <Button>Create/Delete Branch</Button>
           <Button>View Branch</Button>
         </> : null)

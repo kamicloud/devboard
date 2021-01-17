@@ -1,14 +1,9 @@
-import Github from './type';
-
-interface Wrapper<T> {
-  list: T[],
-  data: {[index:string]: T},
-}
+import { Github, Jira } from './type';
 
 export declare namespace Pages {
-  interface DeployPageProps {
+  export interface DeployPageProps {
     branches: Github.ReposListBranchesResponseData,
-    commits: CommitsListResponseData,
+    commits: Github.CommitsListResponseData,
     owner: string,
     repository: string,
     branch: string,
@@ -29,7 +24,7 @@ export declare namespace Pages {
       projectId: string,
     },
 
-    branches: Wrapper<Github.ReposListBranchesResponseData>,
+    branches: Github.ReposListBranchesResponseData,
     groups: Jira.Group[],
     issues: {
       issues: Jira.Issue[],
