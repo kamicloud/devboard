@@ -19,7 +19,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.3.0",
     "@antv/g2": "^4.1.7",
-    "@antv/g6": "^4.1.1",
+    "@antv/g6": "^4.1.2",
     "@nestjs/bull": "^0.1.2",
     "@nestjs/common": "^7.6.5",
     "@nestjs/config": "^0.5.0",
@@ -30,7 +30,7 @@
     "@nestjs/schedule": "^0.4.1",
     "@nestjs/typeorm": "^7.1.5",
     "@octokit/rest": "^18.0.12",
-    "antd": "^4.10.2",
+    "antd": "^4.10.3",
     "aws-sdk": "^2.828.0",
     "axios": "^0.20.0",
     "bull": "^3.20.0",
