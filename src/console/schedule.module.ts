@@ -14,7 +14,7 @@ import { SharedModule } from '../modules/shared.module';
       load: [configuration],
     }),
     LoggerModule.forRoot(),
-    SharedModule,
+    SharedModule.forRoot(),
     ScheduleModule.forRoot(),
   ],
   providers: [

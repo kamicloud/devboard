@@ -22,20 +22,20 @@ export default {
     }
   },
   deploy: {
-    index: async (repository, branch) => {
+    index: async (project, branch) => {
       const { data } = await axios.get('/api/deploy', {
         params: {
-          repository,
+          project,
           branch,
         }
       })
 
       return data;
     },
-    histories: async (repository, branch, site) => {
+    histories: async (project, branch, site) => {
       const { data } = await axios.get('/api/deploy/histories', {
         params: {
-          repository,
+          project,
           branch,
           site,
         }
@@ -43,33 +43,33 @@ export default {
 
       return data;
     },
-    deploy: async (repository, branch, site) => {
+    deploy: async (project, branch, site) => {
       const { data } = await axios.post('/api/deploy', {
-        repository, branch, site
+        project, branch, site
       });
 
       return data;
     },
-    createBranch: async (repository, branch, sha) => {
+    createBranch: async (project, branch, sha) => {
       const { data } = await axios.post('/api/deploy/create-branch', {
-        repository, branch, sha
+        project, branch, sha
       });
 
       return data;
     },
-    deleteBranch: async (repository, branch) => {
+    deleteBranch: async (project, branch) => {
       const { data } = await axios.delete('/api/deploy/delete-branch', {
         params: {
-          repository, branch
+          project, branch
         }
       });
 
       return data;
     },
-    pullToStage: async (repository, branch) => {
+    pullToStage: async (project, branch) => {
 
       const { data } = await axios.post('/api/deploy/pull', {
-        repository, branch
+        project, branch
       });
 
       return data;

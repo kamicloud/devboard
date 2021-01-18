@@ -16,9 +16,9 @@ import { JiraCommand } from './commands/tool/jira.command';
       load: [configuration],
     }),
     LoggerModule.forRoot(),
+    SharedModule.forRoot(),
+    DatabaseModule.forRoot(),
     ConsoleModule,
-    SharedModule,
-    DatabaseModule,
   ],
   providers: [
     JiraCommand,

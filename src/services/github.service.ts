@@ -12,11 +12,11 @@ export class GithubService {
   }
 
   public async commits(
-    repository,
+    project,
     branch = 'master',
     takePage = 3
   ): Promise<Github.CommitsListResponseData> {
-    const repositoryConfig = config.getRepositoryConfig(repository);
+    const repositoryConfig = config.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -37,8 +37,8 @@ export class GithubService {
     return res;
   }
 
-  public async branches(repository) {
-    const repositoryConfig = config.getRepositoryConfig(repository);
+  public async branches(project) {
+    const repositoryConfig = config.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -54,8 +54,8 @@ export class GithubService {
     return branches;
   }
 
-  public async releases(repository) {
-    const repositoryConfig = config.getRepositoryConfig(repository);
+  public async releases(project) {
+    const repositoryConfig = config.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -69,5 +69,26 @@ export class GithubService {
       });
 
     return releases;
+  }
+
+  public async createBranch(project, branch, sha) {
+    return await this.createRef(project, `heads/${branch}`, sha);
+  }
+
+  public async createRef(project, ref, sha) {
+    const repositoryConfig = config.getRepositoryConfig(project);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const res = await octokit.git.createRef({
+      owner: repositoryConfig.orgnization,
+      repo: repositoryConfig.name,
+      ref: `refs/${ref}`,
+      sha,
+    });
+
+    return res;
   }
 }

@@ -40,7 +40,7 @@ export class CacheSchedule {
   })
   @Cron('*/10 * * * * *')
   async loadGithubBranches() {
-    const branches = await this.githubService.branches('sincerely-snapi');
+    const branches = await this.githubService.branches('sincerely');
 
     await this.cacheManager.set('branches', branches, 1000000);
   }

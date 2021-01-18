@@ -9,6 +9,7 @@ import CommitMessage from '../components/deploy/CommitMessage';
 import { useRouter } from 'next/router'
 import api from 'pages/api';
 import { PlusSquareOutlined } from '@ant-design/icons';
+import { SiteDeployHistoriesPopup } from '../components/deploy/SiteDeployHistoriesPopup'
 
 interface DeployTableButton {
   site: string,
@@ -37,43 +38,22 @@ const hashToHotfix = (sha: string, isTemp: boolean) => {
   return (isTemp ? 'tempbranches/' : 'hotfixes/') + sha.substr(0, 7)
 }
 
-const SiteDeployHistoriesPopup = (props) => {
-  const { repository, branch } = props;
-  const [loading, setLoading] = useState(false);
-  const [deployHistories, setDeploymentHistories] = useState([]);
+const buttonType = (status: string) => {
+  if (status === 'deployed') {
+    return 'primary';
+  } else if (status === 'hotfixed') {
+    return 'dashed';
+  }
 
-  useEffect(() => {
-    setLoading(true);
-    api.deploy.histories(repository, branch, props.site).then(data => {
-      setDeploymentHistories(data.gitDeployHistories);
-      setLoading(false);
-    });
-  }, [props.site])
-
-  return <Card
-    title={`Deployment history for ${props.site}:`}
-    style={{ width: 900 }}
-    bordered={true}
-    loading={loading}
-  >
-    {
-      deployHistories.map(deploymentHistory => {
-        return <p key={deploymentHistory.id}>
-          {deploymentHistory.linkTime} hash: {deploymentHistory.sha1.substr(0, 7)} branch: {branch}
-          {deploymentHistory.release ? ` release: ${deploymentHistory.release}` : null}
-          &lt;{deploymentHistory.adminName}&gt;
-        </p>
-      })
-    }
-  </Card>
-};
+  return 'default';
+}
 
 const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) => {
   const router = useRouter()
-  const [repository, setRepository] = useState(props.repository);
+  const [project, setProject] = useState(props.project);
   const [branch, setBranch] = useState(props.branch);
   const [commits, setCommits] = useState(props.commits);
-  const [repositories, setRepositories] = useState(props.repositories);
+  const [projects, setProjects] = useState(props.projects);
   const [gitDeployHistories, setGitDeployHistories] = useState(props.gitDeployHistories)
   const [branches, setBranches] = useState(props.branches)
   const [owner, setOwner] = useState(props.owner)
@@ -89,18 +69,16 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
     return gitHotfixedCommit
   }), 'key')
 
-  const navigateBranch = (repository: string, branch: string) => {
+  const navigateBranch = (project: string, branch: string) => {
+    const query = {
+      project,
+      branch,
+    }
     router.push({
-      query: {
-        repository,
-        branch,
-      }
+      query
     }, {
       pathname: '/deploy',
-      query: {
-        repository,
-        branch,
-      }
+      query,
     })
   }
 
@@ -181,11 +159,11 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
     if (branch !== props.branch) {
       setBranchLoading(true);
       setBranch(props.branch)
-      api.deploy.index(repository, props.branch).then((props: Pages.DeployPageProps) => {
+      api.deploy.index(project, props.branch).then((props: Pages.DeployPageProps) => {
         setBranch(props.branch)
-        setRepository(props.repository)
+        setProject(props.project)
         setCommits(props.commits);
-        setRepositories(props.repositories);
+        setProjects(props.projects);
         setGitDeployHistories(props.gitDeployHistories);
         setBranches(props.branches);
         setOwner(props.owner);
@@ -203,22 +181,22 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
       dataIndex: 'sha',
       key: 'action',
       width: 10,
-      render: (field, model: DeployTableRow, index) => {
+      render: (field: string, model: DeployTableRow, index) => {
         const menu = (
           <Menu>
             <Menu.Item onClick={() => {
-              api.deploy.createBranch(repository, branch, hashToHotfix(field, false));
+              api.deploy.createBranch(project, branch, hashToHotfix(field, false));
             }}>
               Create Hotfix Branch
             </Menu.Item>
             <Menu.Item onClick={() => {
-              api.deploy.createBranch(repository, branch, hashToHotfix(field, true));
+              api.deploy.createBranch(project, branch, hashToHotfix(field, true));
             }}>
               Create Temp Branch
             </Menu.Item>
             {model.button && model.button.display ? null : <Menu.Item onClick={async () => {
               if (model.button && model.button.display) {
-                await api.deploy.hideDeployButton(repository, branch, field);
+                await api.deploy.hideDeployButton(project, branch, field);
                 // await
               } else {
                 displayButtonMap[field] = true
@@ -229,7 +207,7 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
             </Menu.Item>}
           </Menu>
         );
-        return model.display && model.type === 'commit' ? <Dropdown overlay={menu} placement="bottomLeft" arrow>
+        return model.type === 'commit' ? <Dropdown overlay={menu} placement="bottomLeft" arrow>
           <PlusSquareOutlined />
         </Dropdown> : null;
       }
@@ -239,16 +217,14 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
       dataIndex: 'sha',
       key: 'sha',
       width: 30,
-      render: (field, model: DeployTableRow) => {
+      render: (field: string, model: DeployTableRow) => {
         return <>
-          {
-            model.display ? (model.type === 'button' ? <pre style={{ marginBottom: 0 }}>{field.substr(0, 7)}</pre> : <a
-              href={`https://github.com/${owner}/${repository}/commit/${field}`}
-              target='blanket'
-            >
-              <pre style={{ marginBottom: 0 }}>{field.substr(0, 7)}</pre>
-            </a>
-            ) : null
+          {model.type === 'button' ? <pre style={{ marginBottom: 0 }}>{field.substr(0, 7)}</pre> : <a
+            href={`https://github.com/${owner}/${project}/commit/${field}`}
+            target='blanket'
+          >
+            <pre style={{ marginBottom: 0 }}>{field.substr(0, 7)}</pre>
+          </a>
           }
 
         </>
@@ -259,26 +235,16 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
       dataIndex: 'sha',
       key: 'sha',
       width: 1000,
-      render: (field, model: DeployTableRow, index) => {
+      render: (field: string, model: DeployTableRow, index) => {
         const commitMessages: string[] = model.type === 'commit' ? _.flatten(model.message.split("\n\n").map(message => message.split("\r\n"))) : [''];
         const commitMessage = commitMessages[0];
-
-        const buttonType = (status) => {
-          if (status === 'deployed') {
-            return 'primary';
-          } else if (status === 'hotfixed') {
-            return 'dashed';
-          }
-
-          return 'default';
-        }
 
         const buttonRender = (site: DeployTableButton) => {
           return <Dropdown
             key={site.site}
             overlay={
               <SiteDeployHistoriesPopup
-                repository={repository}
+                project={project}
                 branch={branch}
                 site={site.site}
               />
@@ -293,7 +259,7 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
               }}
               onClick={() => {
                 if (confirm(`Deploy ${site.site} from branch: ${branch} commit: ${model.sha}?`)) {
-                  api.deploy.deploy(repository, branch, site.site);
+                  api.deploy.deploy(project, branch, site.site);
                 }
               }}
               size='small'
@@ -307,37 +273,35 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
 
         return <>
           {
-            model.display ? (
-              model.type === 'button' ? <div>
-                {
-                  model.sites.pre.map(buttonRender)
-                }
-                <Divider type="vertical" />
-                {
-                  branch === 'master' || branch.startsWith('hotfixes/') ? model.sites.live.map(buttonRender) : null
-                }
-                {
-                  shaHotfixedCommits[`${field}-hotfix`] ? <Button onClick={() => {
-                    navigateBranch(repository, hashToHotfix(field, false));
-                  }}>View Hotfix</Button> : null
-                }
-                {
-                  shaHotfixedCommits[`${field}-temp`] ? <Button onClick={() => {
-                    navigateBranch(repository, hashToHotfix(field, true));
-                  }}>
-                    View Temp
+            model.type === 'button' ? <div>
+              {
+                model.sites.pre.map(buttonRender)
+              }
+              <Divider type="vertical" />
+              {
+                branch === 'master' || branch.startsWith('hotfixes/') ? model.sites.live.map(buttonRender) : null
+              }
+              {
+                shaHotfixedCommits[`${field}-hotfix`] ? <Button onClick={() => {
+                  navigateBranch(project, hashToHotfix(field, false));
+                }}>View Hotfix</Button> : null
+              }
+              {
+                shaHotfixedCommits[`${field}-temp`] ? <Button onClick={() => {
+                  navigateBranch(project, hashToHotfix(field, true));
+                }}>
+                  View Temp
                 </Button> : null
-                }
-              </div> : <div>
-                  <CommitMessage
-                    commitMessage={commitMessage}
-                    repository={repository}
-                    owner={owner}
-                    date={model.date}
-                    author={model.author}
-                  />
-                </div>
-            ) : null
+              }
+            </div> : <div>
+                <CommitMessage
+                  commitMessage={commitMessage}
+                  project={project}
+                  owner={owner}
+                  date={model.date}
+                  author={model.author}
+                />
+              </div>
           }
         </>
       }
@@ -348,28 +312,28 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
     <>
       <div>
         <div>
-          {'Repository: '}
+          {'Project: '}
           <Select
             style={{
               width: 200,
             }}
             showSearch
-            value={repository}
+            value={project}
             onChange={(value) => {
               router.push({
                 pathname: '/deploy',
                 query: {
-                  repository: value,
+                  project: value,
                 }
               })
             }}
           >
             {
-              repositories.map(repository => {
+              projects.map(project => {
                 return <Select.Option
-                  key={repository}
-                  value={repository}
-                >{repository}</Select.Option>
+                  key={project}
+                  value={project}
+                >{project}</Select.Option>
               })
             }
           </Select>
@@ -384,7 +348,7 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
             disabled={branchLoading}
             onChange={(value) => {
               setBranchLoading(true);
-              navigateBranch(repository, value);
+              navigateBranch(project, value);
             }}
           >
             {branches.map((branch) => {
@@ -396,9 +360,9 @@ const Deploy: NextPage<Pages.DeployPageProps> = (props: Pages.DeployPageProps) =
           </Select>
           <Button>Pull To Stage</Button>
         </div>
-        <div>Deployment for branch "{branch}"</div>
         <Table
           columns={columns}
+          title={() => `Deployment for branch "${branch}"`}
           dataSource={tableData.filter(data => {
             return data.display;
           })}

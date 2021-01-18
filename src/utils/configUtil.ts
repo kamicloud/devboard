@@ -1,10 +1,10 @@
 import YAML from 'yamljs';
 
 export default class ConfigUtil {
-  public static getRepositoryConfig(repository) {
+  public static getRepositoryConfig(project) {
     const repositoryConfig = YAML.load('./repository.yaml');
 
-    const config = repositoryConfig.repositories[repository];
+    const config = repositoryConfig.projects[project];
 
     return config;
   }

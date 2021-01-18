@@ -2,12 +2,13 @@ import { Github, Jira } from './type';
 
 export declare namespace Pages {
   export interface DeployPageProps {
+    project: string,
     branches: Github.ReposListBranchesResponseData,
     commits: Github.CommitsListResponseData,
     owner: string,
     repository: string,
     branch: string,
-    repositories: string[],
+    projects: string[],
     sites: {
       stage: string[],
       pre: string[],

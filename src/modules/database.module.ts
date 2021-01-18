@@ -1,14 +1,22 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { databaseProviders, repositoryProviders } from '../providers/database.provider';
 
 @Module({
   providers: [
-    ...databaseProviders,
-    ...repositoryProviders,
   ],
   exports: [
-    ...databaseProviders,
-    ...repositoryProviders,
   ],
 })
-export class DatabaseModule {}
+export class DatabaseModule {
+  static forRoot(): DynamicModule {
+    const providers = [
+      ...databaseProviders,
+      ...repositoryProviders,
+    ]
+    return {
+      module: DatabaseModule,
+      providers,
+      exports: providers,
+    };
+  }
+}

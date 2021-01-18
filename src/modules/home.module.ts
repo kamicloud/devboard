@@ -8,6 +8,7 @@ import { KanbanController } from '../controllers/home/kanban.controller';
 import { TestController } from '../controllers/home/test.controller';
 import { DeployController } from '../controllers/home/deploy.controller';
 import { DatabaseModule } from './database.module';
+import { SharedHttpModule } from './shared-http.module';
 
 @Module({
   imports: [
@@ -16,8 +17,8 @@ import { DatabaseModule } from './database.module';
     //   load: [configuration],
     // }),
     CacheModule.register(),
-    SharedModule,
-    DatabaseModule,
+    DatabaseModule.forRoot(),
+    SharedHttpModule,
   ],
   controllers: [
     AppController,

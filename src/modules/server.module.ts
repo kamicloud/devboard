@@ -20,7 +20,7 @@ import { SharedModule } from './shared.module';
     }),
     LoggerModule.forRoot(),
     CacheModule.register(),
-    SharedModule,
+    SharedModule.forRoot(),
     ScheduleModule.forRoot(),
     ApiModule,
     HomeModule,

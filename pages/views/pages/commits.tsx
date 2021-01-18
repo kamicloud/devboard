@@ -56,7 +56,7 @@ const CommitsTable = (props) => {
       <Button onClick={() => {
         Axios.get('/api/releases/pull', {
           params: {
-            repository: 'sincerely-snapi'
+            repository: 'sincerely'
           }
         }).then(({ data }) => {
           console.log(data);

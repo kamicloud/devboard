@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Pages } from '../../pages';
 import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
+import { DeployManager } from '../../managers/deploy.manager';
 
 @Controller('deploy')
 export class DeployController {
@@ -19,66 +20,17 @@ export class DeployController {
     private gitDeployHistoryRepository: Repository<GitDeployHistory>,
     @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
     private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
+    private deployManager: DeployManager
   ) { }
 
   @Render('pages/deploy')
   @Get()
   public async index(
-    @Query('repository')
-    repository: string,
+    @Query('project')
+    project: string,
     @Query('branch')
     branch: string = 'master'
   ): Promise<Pages.DeployPageProps> {
-    const branches = await this.githubService.branches(repository);
-    const commits = await this.githubService.commits(repository, branch);
-    const repositoryConfig = config.getRepositoryConfig(repository);
-    const repositories = [
-      repository,
-    ];
-
-    const gitHotfixedCommits = (await this.gitHotfixedCommitRepository.find({
-      where: {
-        repository: 'sincerely',
-      },
-    })).map(gitHotfixedCommit => {
-      gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
-      return gitHotfixedCommit;
-    });
-    const gitDeployHistories = await this.gitDeployHistoryRepository.find({
-      where: {
-        repository: 'sincerely',
-        branch,
-      },
-      order: {
-        id: 'DESC'
-      },
-      take: 1000,
-    });
-
-    const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits, 'branch');
-    let filterHotfix = false;
-
-    return {
-      branches,
-      commits: commits.filter((commit) => {
-        if (hotfixedGroupByBranch[branch]) {
-          if (filterHotfix || hotfixedGroupByBranch[branch].sha === commit.sha) {
-            filterHotfix = true;
-
-            return false;
-          }
-        }
-        return true;
-      }),
-      owner: repositoryConfig.orgnization,
-      repository,
-      branch,
-      repositories,
-      sites: repositoryConfig.sites,
-      gitDeployHistories,
-      gitHotfixedCommits: gitHotfixedCommits.filter(gitHotfixedCommit => {
-        return gitHotfixedCommit.parentBranch === branch;
-      }),
-    }
+    return await this.deployManager.index(project, branch);
   }
 }

@@ -4,10 +4,11 @@ import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
 import config from '../../utils/configUtil';
 import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Pages } from '../../pages';
 import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
+import { DeployManager } from '../../managers/deploy.manager';
 
 @Controller('api/deploy')
 export class DeployController {
@@ -19,83 +20,40 @@ export class DeployController {
     private gitDeployHistoryRepository: Repository<GitDeployHistory>,
     @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
     private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
+    private deployManager: DeployManager
   ) { }
 
   @Get()
   public async index(
-    @Query('repository')
-    repository: string,
+    @Query('project')
+    project: string,
     @Query('branch')
     branch: string = 'master'
   ): Promise<Pages.DeployPageProps> {
-    const branches = await this.githubService.branches(repository);
-    const commits = await this.githubService.commits(repository, branch);
-    const repositoryConfig = config.getRepositoryConfig(repository);
-    const repositories = [
-      repository,
-    ];
-
-    const gitHotfixedCommits = (await this.gitHotfixedCommitRepository.find({
-      where: {
-        repository: 'sincerely',
-      },
-    })).map(gitHotfixedCommit => {
-      gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
-      return gitHotfixedCommit;
-    });
-    const gitDeployHistories = await this.gitDeployHistoryRepository.find({
-      where: {
-        repository: 'sincerely',
-        branch,
-      },
-      order: {
-        id: 'DESC'
-      },
-      take: 1000,
-    });
-
-    const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits, 'branch');
-    let filterHotfix = false;
-
-    return {
-      branches,
-      commits: commits.filter((commit) => {
-        if (hotfixedGroupByBranch[branch]) {
-          if (filterHotfix || hotfixedGroupByBranch[branch].sha === commit.sha) {
-            filterHotfix = true;
-
-            return false;
-          }
-        }
-        return true;
-      }),
-      owner: repositoryConfig.orgnization,
-      repository,
-      branch,
-      repositories,
-      sites: repositoryConfig.sites,
-      gitDeployHistories,
-      gitHotfixedCommits: gitHotfixedCommits.filter(gitHotfixedCommit => {
-        return gitHotfixedCommit.parentBranch === branch;
-      }),
-    }
+    return await this.deployManager.index(project, branch);
   }
 
   @Get('histories')
   public async histories(
-    @Query('repository')
-    repository: string,
+    @Query('project')
+    project: string,
     @Query('branch')
     branch: string,
     @Query('site')
     site: string
   ) {
+    const repositoryConfig = config.getRepositoryConfig(project);
+
     const gitDeployHistories = await this.gitDeployHistoryRepository
       .createQueryBuilder()
-      .where('repository=:repository', { repository: 'sincerely' })
-      .andWhere('branch=:branch', { branch })
-      .andWhere('site_name=:siteName', { siteName: site })
-      .andWhere('is_hidden=:isHidden', { isHidden: false })
+      .where(new Brackets(qb => {
+        qb.andWhere('repository=:repository', { repository: project })
+        qb.andWhere('site_name=:siteName', { siteName: site });
+        if (repositoryConfig.sites.live.indexOf(site) === -1) {
+          qb.andWhere('branch=:branch', { branch })
+        }
+        qb.andWhere('is_hidden=:isHidden', { isHidden: false })
+      }))
       .orderBy('id', 'DESC')
       .limit(20)
       .getMany();
@@ -107,8 +65,8 @@ export class DeployController {
 
   @Post('pull')
   public async pullToStage(
-    @Param('repository')
-    repository: string,
+    @Param('project')
+    project: string,
     @Param('branch')
     branch: string
   ) {
@@ -116,8 +74,8 @@ export class DeployController {
 
   @Post()
   public async deploy(
-    @Param('repository')
-    repository: string,
+    @Param('project')
+    project: string,
     @Param('branch')
     branch: string,
     @Param('site')
@@ -128,8 +86,8 @@ export class DeployController {
 
   @Post('create-branch')
   public async createBranch(
-    @Param('repository')
-    repository: string,
+    @Param('project')
+    project: string,
     @Param('branch')
     branch: string
   ) {
@@ -138,8 +96,8 @@ export class DeployController {
 
   @Delete('delete-branch')
   public async deleteBranch(
-    @Param('repository')
-    repository: string,
+    @Param('project')
+    project: string,
     @Param('branch')
     branch: string
   ) {
