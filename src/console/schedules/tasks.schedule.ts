@@ -78,7 +78,8 @@ export class TasksSchedule {
 
           if (
             cause.shortDescription.indexOf('Push event to branch') !== -1 ||
-            cause.shortDescription.indexOf('Pull request') !== -1
+            cause.shortDescription.indexOf('Pull request') !== -1 ||
+            cause.shortDescription.indexOf('Branch indexing') !== -1
           ) {
             return false;
           }
