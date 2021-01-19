@@ -10,6 +10,8 @@ import configuration from '../config/configuration';
 import { HomeModule } from './home.module';
 import { RenderModule } from 'nest-next';
 import { SharedModule } from './shared.module';
+import { scheduleProvider } from '../providers/schedule.provider';
+import { DatabaseModule } from './database.module';
 
 const imports = [
   RenderModule.forRootAsync(Next({ dev: process.env.NODE_ENV !== 'production' })),
@@ -19,6 +21,7 @@ const imports = [
   }),
   LoggerModule.forRoot(),
   CacheModule.register(),
+  DatabaseModule.forRoot(),
   SharedModule.forRoot(),
   ScheduleModule.forRoot(),
   ApiModule,
@@ -26,14 +29,12 @@ const imports = [
 ];
 
 const providers = [
-  TasksSchedule,
-  CacheSchedule,
+  ...scheduleProvider
 ];
 
 @Module({
   imports,
   providers,
-  exports: [
-  ]
+  exports: providers
 })
-export class ServerModule {}
+export class ServerModule { }

@@ -17,7 +17,6 @@ import { SharedHttpModule } from './shared-http.module';
     //   load: [configuration],
     // }),
     CacheModule.register(),
-    DatabaseModule.forRoot(),
     SharedHttpModule,
   ],
   controllers: [

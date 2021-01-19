@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { Logger } from "nestjs-pino";
 import _ from 'lodash';
@@ -7,7 +7,10 @@ import { ConfigService } from '@nestjs/config';
 import notifier from 'node-notifier';
 import { JenkinsService } from '../../services/jenkins.service';
 import { JiraService } from '../../services/jira.service';
-
+import axios from 'axios';
+import { Brackets, Repository } from 'typeorm';
+import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
+import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 
 @Console({
   name: 'tasks',
@@ -15,7 +18,8 @@ import { JiraService } from '../../services/jira.service';
 })
 @Injectable()
 export class TasksSchedule {
-  private temp = {};
+  private jenkinsJobs = {};
+  private jenkinsBooted = false;
   private notifyEnabled = {};
   private jiraActivitiesMap = {};
 
@@ -25,7 +29,11 @@ export class TasksSchedule {
     private readonly logger: Logger,
     private configService: ConfigService,
     private jenkinsService: JenkinsService,
-    private jiraService: JiraService
+    private jiraService: JiraService,
+    @Inject('GIT_DEPLOY_HISTORY_REPOSITORY')
+    private gitDeployHistoryRepository: Repository<GitDeployHistory>,
+    @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
+    private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
   ) {
     this.jiraLastRun = new Date();
   }
@@ -44,24 +52,20 @@ export class TasksSchedule {
     }
 
     for (const job of jobs.split(',')) {
-      const {data} = await this.jenkinsService.getRuns(job);
+      const { data } = await this.jenkinsService.getRuns(job);
 
       let contentArr: string[] = data.reverse().filter(element => {
         const pipeline = decodeURIComponent(element.pipeline)
         const hash = `${pipeline}_${element.id}`;
         const state = element.state;
 
-        const filter = !this.temp[hash] || this.temp[hash].state !== state;
+        const filter = !this.jenkinsJobs[hash] || this.jenkinsJobs[hash].state !== state;
 
-        if (filter) {
-          this.temp[hash] = element;
-
-        }
         return filter;
       }).filter(element => {
         const changeSet = element.changeSet;
         if (this.notifyEnabled[job] && changeSet && changeSet.length) {
-          notifier.notify(JSON.stringify(element));
+          // notifier.notify(JSON.stringify(element));
           return false;
         }
 
@@ -72,7 +76,10 @@ export class TasksSchedule {
         for (let i = 0; i < causes.length; i++) {
           const cause = causes[i];
 
-          if (cause.shortDescription.indexOf('Push event to branch') !== -1) {
+          if (
+            cause.shortDescription.indexOf('Push event to branch') !== -1 ||
+            cause.shortDescription.indexOf('Pull request') !== -1
+          ) {
             return false;
           }
         }
@@ -80,7 +87,10 @@ export class TasksSchedule {
         return true;
       }).map(element => {
         const pipeline = decodeURIComponent(element.pipeline)
+        const hash = `${pipeline}_${element.id}`;
         const { state, result } = element;
+
+        this.jenkinsJobs[hash] = element;
 
         let content = '';
 
@@ -97,15 +107,55 @@ export class TasksSchedule {
 
       console.log(content);
 
-      // if (dingdingToken && this.notifyEnabled[job]) {
-      //   await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
-      //     msgtype: 'text',
-      //     text: {
-      //       content,
-      //     }
-      //   });
-      // }
+      if (this.jenkinsBooted && dingdingToken && this.notifyEnabled[job]) {
+        await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
+          msgtype: 'text',
+          text: {
+            content,
+          }
+        });
+      }
+
+      this.jenkinsBooted = true;
       this.notifyEnabled[job] = true;
+    }
+  }
+
+  @Command({
+    command: 'update-deployment-status',
+    description: 'Command for jenkins'
+  })
+  @Cron('*/10 * * * * *')
+  async updateDeploymentStatus() {
+    this.logger.log('update-deployment-status');
+    const project = 'sincerely';
+    const jenkinsProjectName = 'sincerely-snapi';
+
+    const deployHistories = await this.gitDeployHistoryRepository
+      .createQueryBuilder()
+      .where(new Brackets(qb => {
+        qb.andWhere('repository=:repostiory', { repostiory: project })
+        qb.andWhere('deployment_status=:deploymentStatus', { deploymentStatus: 'deploying' })
+        qb.andWhere('`release`<>:release', { release: '' })
+      }))
+      .getMany();
+
+    for (const deployHistory of deployHistories) {
+      const data = await this.jenkinsService.getBranch(jenkinsProjectName, deployHistory.release);
+
+      if (data && data.latestRun) {
+        if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE') {
+          deployHistory.deploymentStatus = 'deployed';
+          await this.gitDeployHistoryRepository
+            .createQueryBuilder()
+            .update()
+            .whereEntity(deployHistory)
+            .set({
+              deploymentStatus: data.latestRun.result === 'FAILURE' ? 'blocked' : 'deployed'
+            })
+            .execute()
+        }
+      }
     }
   }
 

@@ -14,6 +14,7 @@ export class DatabaseModule {
       ...repositoryProviders,
     ]
     return {
+      global: true,
       module: DatabaseModule,
       providers,
       exports: providers,
