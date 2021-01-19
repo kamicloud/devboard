@@ -11,24 +11,28 @@ import { HomeModule } from './home.module';
 import { RenderModule } from 'nest-next';
 import { SharedModule } from './shared.module';
 
+const imports = [
+  RenderModule.forRootAsync(Next({ dev: process.env.NODE_ENV !== 'production' })),
+  ConfigModule.forRoot({
+    isGlobal: true,
+    load: [configuration],
+  }),
+  LoggerModule.forRoot(),
+  CacheModule.register(),
+  SharedModule.forRoot(),
+  ScheduleModule.forRoot(),
+  ApiModule,
+  HomeModule,
+];
+
+const providers = [
+  TasksSchedule,
+  CacheSchedule,
+];
+
 @Module({
-  imports: [
-    RenderModule.forRootAsync(Next({ dev: process.env.NODE_ENV !== 'production' })),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configuration],
-    }),
-    LoggerModule.forRoot(),
-    CacheModule.register(),
-    SharedModule.forRoot(),
-    ScheduleModule.forRoot(),
-    ApiModule,
-    HomeModule,
-  ],
-  providers: [
-    CacheSchedule,
-    TasksSchedule,
-  ],
+  imports,
+  providers,
   exports: [
   ]
 })

@@ -6,6 +6,7 @@ import { JenkinsService } from '../services/jenkins.service';
 import { GithubService } from '../services/github.service';
 import { NodegitService } from '../services/nodegit.service';
 import { CacheService } from '../services/cache.service';
+import ConfigUtil from '../utils/config.util';
 
 const providers = [
   AppService,
@@ -15,6 +16,8 @@ const providers = [
   JiraService,
   NodegitService,
   ReleasesService,
+
+  ConfigUtil,
 ];
 
 @Module({

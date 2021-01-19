@@ -2,7 +2,7 @@ import { Controller, Get, Post, Delete, Query, Render, Param, Req, Inject } from
 import { AppService } from '../../services/app.service';
 import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
-import config from '../../utils/configUtil';
+import ConfigUtil from '../../utils/config.util';
 import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
 import { Repository, Brackets } from 'typeorm';
 import { Pages } from '../../pages';
@@ -20,7 +20,8 @@ export class DeployController {
     private gitDeployHistoryRepository: Repository<GitDeployHistory>,
     @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
     private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
-    private deployManager: DeployManager
+    private deployManager: DeployManager,
+    private configUtil: ConfigUtil
   ) { }
 
   @Get()
@@ -42,7 +43,7 @@ export class DeployController {
     @Query('site')
     site: string
   ) {
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
     const gitDeployHistories = await this.gitDeployHistoryRepository
       .createQueryBuilder()

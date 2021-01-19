@@ -2,7 +2,7 @@ import { Controller, Get, Query, Render, Param, Req, Inject, Injectable } from '
 import { AppService } from '../services/app.service';
 import { NodegitService } from '../services/nodegit.service';
 import { GithubService } from '../services/github.service';
-import config from '../utils/configUtil';
+import ConfigUtil from '../utils/config.util';
 import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
 import { Repository } from 'typeorm';
 import { Pages } from '../pages';
@@ -19,6 +19,7 @@ export class DeployManager {
     private gitDeployHistoryRepository: Repository<GitDeployHistory>,
     @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
     private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
+    private configUtil: ConfigUtil,
   ) { }
 
   public async index(
@@ -27,7 +28,7 @@ export class DeployManager {
   ): Promise<Pages.DeployPageProps> {
     const branches = await this.githubService.branches(project);
     const commits = await this.githubService.commits(project, branch);
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
     const projects = [
       project,
     ];

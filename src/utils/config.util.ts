@@ -1,7 +1,9 @@
 import YAML from 'yamljs';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export default class ConfigUtil {
-  public static getRepositoryConfig(project) {
+  public getRepositoryConfig(project) {
     const repositoryConfig = YAML.load('./repository.yaml');
 
     const config = repositoryConfig.projects[project];
@@ -9,7 +11,7 @@ export default class ConfigUtil {
     return config;
   }
 
-  public static getRepositoryUrl(repository) {
+  public getRepositoryUrl(repository) {
     const config = this.getRepositoryConfig(repository);
 
     return `https://${config.token}@github.com/${config.orgnization}/${name}`;

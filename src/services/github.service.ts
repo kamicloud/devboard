@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Octokit } from '@octokit/rest';
-import config from '../utils/configUtil';
+import ConfigUtil from '../utils/config.util';
 import { Github } from 'src/type';
 
 @Injectable()
 export class GithubService {
   constructor(
-    private configService: ConfigService
+    private configService: ConfigService,
+    private configUtil: ConfigUtil,
   ) {
   }
 
@@ -16,7 +17,7 @@ export class GithubService {
     branch = 'master',
     takePage = 3
   ): Promise<Github.CommitsListResponseData> {
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -38,7 +39,7 @@ export class GithubService {
   }
 
   public async branches(project) {
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -55,7 +56,7 @@ export class GithubService {
   }
 
   public async releases(project) {
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,
@@ -76,7 +77,7 @@ export class GithubService {
   }
 
   public async createRef(project, ref, sha) {
-    const repositoryConfig = config.getRepositoryConfig(project);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
     const octokit = new Octokit({
       auth: repositoryConfig.token,

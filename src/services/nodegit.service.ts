@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Git from 'nodegit';
-import configUtil from '../utils/configUtil';
+import configUtil from '../utils/config.util';
 import fse from 'fs-extra';
+import ConfigUtil from '../utils/config.util';
 
 @Injectable()
 export class NodegitService {
   constructor(
-    private configService: ConfigService
+    private configService: ConfigService,
+    private configUtil: ConfigUtil,
   ) {
   }
 
   public async getRepositoryCommits(repository: string, branch: string, perpage = 50, page = 1) {
-    const config = configUtil.getRepositoryConfig(repository);
+    const config = this.configUtil.getRepositoryConfig(repository);
     const commits = [];
     const repo = await Git.Repository.open('./storage/repositories/' + config.name);
 
@@ -39,7 +41,7 @@ export class NodegitService {
   }
 
   public async fetchAndPull(repository) {
-    const repositoryConfig = configUtil.getRepositoryConfig(repository);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(repository);
     const repo = await Git.Repository.open('./storage/repositories/' + repository);
 
     await repo.fetchAll({
@@ -56,7 +58,7 @@ export class NodegitService {
   }
 
   public async cloneRepository(repository, force = false) {
-    const repositoryConfig = configUtil.getRepositoryConfig(repository);
+    const repositoryConfig = this.configUtil.getRepositoryConfig(repository);
 
     const opts = repositoryConfig.token ? {
       fetchOpts: {
