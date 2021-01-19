@@ -156,4 +156,8 @@ export declare namespace Jenkins {
       shortDescription: string,
     }[]
   }
+
+  interface Branch {
+    latestRun?: Jenkins.Run,
+  }
 }

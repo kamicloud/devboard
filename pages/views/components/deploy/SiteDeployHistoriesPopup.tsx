@@ -4,7 +4,7 @@ import { Table, Radio, Divider, Button, Menu, Dropdown, Select, Card } from 'ant
 import _ from 'lodash';
 import api from 'pages/api';
 
-export const SiteDeployHistoriesPopup = (props: {
+const SiteDeployHistoriesPopup = (props: {
   project: string,
   branch: string,
   site: string
@@ -38,3 +38,5 @@ export const SiteDeployHistoriesPopup = (props: {
     }
   </Card>
 };
+
+export default SiteDeployHistoriesPopup

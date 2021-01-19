@@ -6,6 +6,7 @@ import { GitHotfixedCommit } from '../entities/GitHotfixedCommit.entity';
 
 export const databaseProviders = [
   {
+    isGlobal: true,
     provide: 'DATABASE_CONNECTION',
     useFactory: async () => await createConnection({
       type: 'mysql',
@@ -21,11 +22,13 @@ export const databaseProviders = [
 
 export const repositoryProviders = [
   {
+    isGlobal: true,
     provide: 'GIT_DEPLOY_HISTORY_REPOSITORY',
     useFactory: (connection: Connection) => connection.getRepository(GitDeployHistory),
     inject: ['DATABASE_CONNECTION'],
   },
   {
+    isGlobal: true,
     provide: 'GIT_HOTFIXED_COMMIT_REPOSITORY',
     useFactory: (connection: Connection) => connection.getRepository(GitHotfixedCommit),
     inject: ['DATABASE_CONNECTION'],

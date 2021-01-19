@@ -32,14 +32,32 @@ export class JenkinsService {
     return { data };
   }
 
+  public async getBranch(job, branch): Promise<Jenkins.Branch | null> {
+    const { username, password, host } = this.configService.get<any>('jenkins');
+    const res = await axios.get(`${host}/blue/rest/organizations/jenkins/pipelines/${job}/branches/${branch}/`, {
+      auth: {
+        username,
+        password,
+      }
+    }).catch((error: Error) => {
+      console.log(error.message, error.stack, error.name)
+    });
+
+    if (!res || !res.data) {
+      return null;
+    }
+
+    return res.data;
+  }
+
   public mapResult(result: string) {
     switch (result) {
       case 'UNKNOWN':
-        return '未完成';
+        return 'in progress';
       case 'SUCCESS':
-        return '成功';
+        return 'success';
       case 'FAILURE':
-        return '失败';
+        return 'failed';
       default:
         return result;
     }
@@ -48,11 +66,11 @@ export class JenkinsService {
   public mapState(state: string) {
     switch (state) {
       case 'FINISHED':
-        return '部署结束';
+        return 'finished';
       case 'RUNNING':
-        return '部署中';
+        return 'running';
       case 'QUEUED':
-        return '队列等待'
+        return 'in queue'
       default:
         return state;
     }
