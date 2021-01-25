@@ -55,6 +55,7 @@ export class TasksSchedule {
       const { data } = await this.jenkinsService.getRuns(job);
 
       let contentArr: string[] = data.reverse().filter(element => {
+        // filter state
         const pipeline = decodeURIComponent(element.pipeline)
         const hash = `${pipeline}_${element.id}`;
         const state = element.state;
@@ -63,6 +64,7 @@ export class TasksSchedule {
 
         return filter;
       }).filter(element => {
+        // filter changeSet
         const changeSet = element.changeSet;
         if (this.notifyEnabled[job] && changeSet && changeSet.length) {
           // notifier.notify(JSON.stringify(element));
@@ -71,18 +73,23 @@ export class TasksSchedule {
 
         return true;
       }).filter(element => {
-        const { causes } = element;
+        // filter pipeline
+        const pipeline = decodeURIComponent(element.pipeline)
 
-        for (let i = 0; i < causes.length; i++) {
-          const cause = causes[i];
-
-          if (
-            cause.shortDescription.indexOf('Push event to branch') !== -1 ||
-            cause.shortDescription.indexOf('Pull request') !== -1 ||
-            cause.shortDescription.indexOf('Branch indexing') !== -1
-          ) {
-            return false;
-          }
+        if (
+          pipeline.startsWith('snapi-v') ||
+          pipeline.startsWith('snapi-eu-v') ||
+          pipeline.startsWith('snapi-gifting-v') ||
+          pipeline.startsWith('snapi-admin-v') ||
+          pipeline.startsWith('preview-v') ||
+          pipeline.startsWith('preview-eu-v') ||
+          pipeline.startsWith('preview-gifting-v') ||
+          pipeline.startsWith('worker-v') ||
+          pipeline.startsWith('worker-eu-v') ||
+          pipeline.startsWith('runner-v') ||
+          pipeline.startsWith('runner-eu-v')
+        ) {
+          return true;
         }
 
         return true;
