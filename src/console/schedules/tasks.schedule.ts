@@ -92,7 +92,7 @@ export class TasksSchedule {
           return true;
         }
 
-        return true;
+        return false;
       }).map(element => {
         const pipeline = decodeURIComponent(element.pipeline)
         const hash = `${pipeline}_${element.id}`;
