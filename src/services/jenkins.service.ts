@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import jenkinsapi from 'jenkins-api';
 import { Jenkins } from 'src/type';
 
 @Injectable()

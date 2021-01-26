@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Git from 'nodegit';
-import configUtil from '../utils/config.util';
 import fse from 'fs-extra';
 import ConfigUtil from '../utils/config.util';
 
