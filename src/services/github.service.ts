@@ -92,4 +92,72 @@ export class GithubService {
 
     return res;
   }
+
+  public async listRefs(project) {
+    // const repositoryConfig = this.configUtil.getRepositoryConfig(project);
+
+    // const octokit = new Octokit({
+    //   auth: repositoryConfig.token,
+    // });
+
+    // await octokit.git.re({
+    //   owner: repositoryConfig.orgnization,
+    //   repo: repositoryConfig.name,
+    //   ref: `refs/${ref}`
+    // });
+
+    // return res;
+  }
+
+  public async getRef(project, ref) {
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const { data } = await octokit.git.getRef({
+      owner: repositoryConfig.orgnization,
+      repo: repositoryConfig.name,
+      ref: `${ref}`
+    });
+
+    return data;
+  }
+
+  public async deleteRef(project, ref) {
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const { data } = await octokit.git.deleteRef({
+      owner: repositoryConfig.orgnization,
+      repo: repositoryConfig.name,
+      ref: `${ref}`
+    });
+
+    return data;
+  }
+
+  public async deleteTag(project, tag) {
+    return await this.deleteRef(project, `tags/${tag}`);
+  }
+
+  public async deleteRelease(project, release: number) {
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const { data } = await octokit.repos.deleteRelease({
+      owner: repositoryConfig.orgnization,
+      repo: repositoryConfig.name,
+      release_id: release
+    });
+
+    return data
+  }
 }

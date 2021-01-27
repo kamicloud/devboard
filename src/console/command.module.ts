@@ -8,13 +8,15 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/config/configuration';
 import { DatabaseModule } from '../modules/database.module';
 import { JiraCommand } from './commands/tool/jira.command';
+import { GithubCommand } from './commands/tool/github.command';
 
 const providers = [
+  GithubCommand,
   JiraCommand,
   TasksSchedule,
 ];
 
-const testCommand = __dirname + '/commond.module.ts';
+const testCommand = __dirname + '/commands/test.command.ts';
 
 if (fs.existsSync(testCommand)) {
   providers.push(require(testCommand).TestCommand);
