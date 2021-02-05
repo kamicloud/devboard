@@ -93,6 +93,24 @@ export class GithubService {
     return res;
   }
 
+  public async listTags(project) {
+    const repositoryConfig = this.configUtil.getRepositoryConfig(project);
+
+    const octokit = new Octokit({
+      auth: repositoryConfig.token,
+    });
+
+    const tags = await octokit
+      .paginate(octokit.repos.listTags, {
+        owner: repositoryConfig.orgnization,
+        repo: repositoryConfig.name,
+        per_page: 100,
+      });
+
+
+    return tags;
+  }
+
   public async listRefs(project) {
     // const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 

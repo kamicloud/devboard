@@ -6,6 +6,7 @@ import { JiraService } from 'src/services/jira.service';
 import { GithubService } from 'src/services/github.service';
 import moment from 'moment';
 import { timeStamp } from 'console';
+import _ from 'lodash';
 
 @Console({
   name: 'github',
@@ -30,6 +31,8 @@ export class GithubCommand {
   async handle(): Promise<void> {
     const releases = (await this.githubService.releases('sincerely')).reverse();
 
+    console.log(releases[0]);
+
     for (const release of releases) {
       if (moment(new Date()).diff(moment(new Date(release.created_at)), 'days') > 60) {
 
@@ -49,5 +52,22 @@ export class GithubCommand {
       //   return;
       }
     }
+
+    const releasesByTagName = _.keyBy(releases, 'tag_name');
+
+    const tags = (await this.githubService.listTags('sincerely')).reverse();
+
+    for (const tag of tags) {
+      if (!releasesByTagName[tag.name]) {
+        console.log(tag.name)
+        await this.githubService.deleteTag('sincerely', tag.name).catch(e => {
+          console.log(e)
+        });
+      }
+    }
+
+
+    // console.log(releases.length, releases[0])
+    return;
   }
 }
