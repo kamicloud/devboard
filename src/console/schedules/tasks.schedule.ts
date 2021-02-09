@@ -45,7 +45,7 @@ export class TasksSchedule {
   @Cron('*/10 * * * * *')
   async loadJenkinsActivities() {
     this.logger.log('jenkins started');
-    const { enabled, jobs, dingdingToken } = this.configService.get<any>('jenkins');
+    const { enabled, jobs, dingdingToken, slackToken } = this.configService.get<any>('jenkins');
 
     if (!enabled) {
       return;
@@ -115,13 +115,24 @@ export class TasksSchedule {
 
       console.log(content);
 
-      if (this.jenkinsBooted && dingdingToken && this.notifyEnabled[job]) {
-        await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
-          msgtype: 'text',
-          text: {
-            content,
-          }
-        });
+      if (this.jenkinsBooted && this.notifyEnabled[job]) {
+        if (dingdingToken) {
+          await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${dingdingToken}`, {
+            msgtype: 'text',
+            text: {
+              content,
+            }
+          });
+        }
+
+        if (slackToken) {
+          await axios.post(`https://hooks.slack.com/services/${slackToken}`, {
+            channel: '#sincerely-hz',
+            username: 'webhookbot',
+            text: 'testestest',
+            icon_emoji: ':ghost:',
+          })
+        }
       }
 
       this.jenkinsBooted = true;

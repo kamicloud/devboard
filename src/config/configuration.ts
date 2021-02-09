@@ -7,6 +7,7 @@ export default () => ({
     jobs: process.env.JENKINS_JOBS,
     dingdingToken: process.env.JENKINS_DINGDING_TOKEN,
     dingtalkToken2: process.env.JENKINS_DINGTALK_TOKEN2,
+    slackToken: process.env.JENKINS_SLACK_TOKEN,
   },
   jira: {
     endpoint: process.env.JIRA_ENDPOINT,
