@@ -127,10 +127,10 @@ export class TasksSchedule {
 
         if (slackToken) {
           await axios.post(`https://hooks.slack.com/services/${slackToken}`, {
-            channel: '#sincerely-hz',
+            channel: '#sa_deployments',
             username: 'webhookbot',
-            text: 'testestest',
-            icon_emoji: ':ghost:',
+            text: content,
+            // icon_emoji: ':ghost:',
           })
         }
       }
