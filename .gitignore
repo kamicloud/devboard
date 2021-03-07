@@ -3,5 +3,6 @@
 /.next/
 /documentation/
 /node_modules/
+/config.yaml
 /repository.yaml
 .env
