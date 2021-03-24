@@ -7,6 +7,7 @@ import { GithubService } from '../services/github.service';
 import { NodegitService } from '../services/nodegit.service';
 import { CacheService } from '../services/cache.service';
 import ConfigUtil from '../utils/config.util';
+import { DatabaseService } from 'src/services/database.service';
 
 const providers = [
   AppService,
@@ -16,6 +17,7 @@ const providers = [
   JiraService,
   NodegitService,
   ReleasesService,
+  DatabaseService,
 
   ConfigUtil,
 ];

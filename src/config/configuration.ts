@@ -16,6 +16,7 @@ export default () => ({
     projectId: process.env.JIRA_PROJECT_ID,
   },
   database: {
+    enabled: process.env.DB_ENABLED,
     host: process.env.DB_HOST,
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,

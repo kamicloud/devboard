@@ -6,7 +6,6 @@ import { TasksSchedule } from './schedules/tasks.schedule';
 import { SharedModule } from '../modules/shared.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/config/configuration';
-import { DatabaseModule } from '../modules/database.module';
 import { JiraCommand } from './commands/tool/jira.command';
 import { GithubCommand } from './commands/tool/github.command';
 
@@ -30,7 +29,6 @@ if (fs.existsSync(testCommand)) {
     }),
     LoggerModule.forRoot(),
     SharedModule.forRoot(),
-    DatabaseModule.forRoot(),
     ConsoleModule,
   ],
   providers,
