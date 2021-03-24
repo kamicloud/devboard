@@ -4,7 +4,7 @@ import { NodegitService } from '../services/nodegit.service';
 import { GithubService } from '../services/github.service';
 import ConfigUtil from '../utils/config.util';
 import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
-import { Repository } from 'typeorm';
+import { getManager } from 'typeorm';
 import { Pages } from '../pages';
 import { GitHotfixedCommit } from '../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
@@ -15,10 +15,6 @@ export class DeployManager {
     private readonly appService: AppService,
     private readonly githubService: GithubService,
     private readonly nodegitService: NodegitService,
-    @Inject('GIT_DEPLOY_HISTORY_REPOSITORY')
-    private gitDeployHistoryRepository: Repository<GitDeployHistory>,
-    @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
-    private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
     private configUtil: ConfigUtil,
   ) { }
 
@@ -33,24 +29,29 @@ export class DeployManager {
       project,
     ];
 
-    const gitHotfixedCommits = (await this.gitHotfixedCommitRepository.find({
-      where: {
-        repository: project,
-      },
-    })).map(gitHotfixedCommit => {
-      gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
-      return gitHotfixedCommit;
-    });
-    const gitDeployHistories = await this.gitDeployHistoryRepository.find({
-      where: {
-        repository: project,
-        branch,
-      },
-      order: {
-        id: 'DESC'
-      },
-      take: 1000,
-    });
+    const entityManager = getManager();
+    const gitHotfixedCommits = (await entityManager.getRepository(GitHotfixedCommit)
+      .find({
+        where: {
+          repository: project,
+        },
+      })).map(gitHotfixedCommit => {
+        gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
+        return gitHotfixedCommit;
+      });
+
+    const gitDeployHistories = await entityManager
+      .getRepository(GitDeployHistory)
+      .find({
+        where: {
+          repository: project,
+          branch,
+        },
+        order: {
+          id: 'DESC'
+        },
+        take: 1000,
+      });
 
     const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits, 'branch');
     let filterHotfix = false;

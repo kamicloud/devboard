@@ -4,7 +4,7 @@ import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
 import ConfigUtil from '../../utils/config.util';
 import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
-import { Repository, Brackets } from 'typeorm';
+import { getManager, Brackets } from 'typeorm';
 import { Pages } from '../../pages';
 import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
@@ -16,10 +16,6 @@ export class DeployController {
     private readonly appService: AppService,
     private readonly githubService: GithubService,
     private readonly nodegitService: NodegitService,
-    @Inject('GIT_DEPLOY_HISTORY_REPOSITORY')
-    private gitDeployHistoryRepository: Repository<GitDeployHistory>,
-    @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
-    private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
     private deployManager: DeployManager,
     private configUtil: ConfigUtil
   ) { }
@@ -45,7 +41,8 @@ export class DeployController {
   ) {
     const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
-    const gitDeployHistories = await this.gitDeployHistoryRepository
+    const entityManager = getManager();
+    const gitDeployHistories = await entityManager.getRepository(GitDeployHistory)
       .createQueryBuilder()
       .where(new Brackets(qb => {
         qb.andWhere('repository=:repository', { repository: project })

@@ -7,7 +7,6 @@ import configuration from '../config/configuration';
 import { KanbanController } from '../controllers/home/kanban.controller';
 import { TestController } from '../controllers/home/test.controller';
 import { DeployController } from '../controllers/home/deploy.controller';
-import { DatabaseModule } from './database.module';
 import { SharedHttpModule } from './shared-http.module';
 
 @Module({

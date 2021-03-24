@@ -15,10 +15,6 @@ export class DeployController {
     private readonly appService: AppService,
     private readonly githubService: GithubService,
     private readonly nodegitService: NodegitService,
-    @Inject('GIT_DEPLOY_HISTORY_REPOSITORY')
-    private gitDeployHistoryRepository: Repository<GitDeployHistory>,
-    @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
-    private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
     private deployManager: DeployManager
   ) { }
 
