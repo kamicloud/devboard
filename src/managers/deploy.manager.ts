@@ -3,11 +3,9 @@ import { AppService } from '../services/app.service';
 import { NodegitService } from '../services/nodegit.service';
 import { GithubService } from '../services/github.service';
 import ConfigUtil from '../utils/config.util';
-import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
-import { getManager } from 'typeorm';
 import { Pages } from '../pages';
-import { GitHotfixedCommit } from '../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
+import { DatabaseService } from 'src/services/database.service';
 
 @Injectable()
 export class DeployManager {
@@ -16,6 +14,7 @@ export class DeployManager {
     private readonly githubService: GithubService,
     private readonly nodegitService: NodegitService,
     private configUtil: ConfigUtil,
+    private databaseService: DatabaseService,
   ) { }
 
   public async index(
@@ -29,31 +28,13 @@ export class DeployManager {
       project,
     ];
 
-    const entityManager = getManager();
-    const gitHotfixedCommits = (await entityManager.getRepository(GitHotfixedCommit)
-      .find({
-        where: {
-          repository: project,
-        },
-      })).map(gitHotfixedCommit => {
-        gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
-        return gitHotfixedCommit;
-      });
+    const gitHotfixedCommits = await this.databaseService.getHotfixedCommits(project);
+    const gitDeployHistories = await this.databaseService.getLatestDeployHistories(project, branch);
 
-    const gitDeployHistories = await entityManager
-      .getRepository(GitDeployHistory)
-      .find({
-        where: {
-          repository: project,
-          branch,
-        },
-        order: {
-          id: 'DESC'
-        },
-        take: 1000,
-      });
-
-    const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits, 'branch');
+    const hotfixedGroupByBranch = _.keyBy(gitHotfixedCommits.map(gitHotfixedCommit => {
+      gitHotfixedCommit.branch = (gitHotfixedCommit.isTemp ? 'tempbranches/' : 'hotfixes/') + gitHotfixedCommit.sha.substr(0, 7);
+      return gitHotfixedCommit;
+    }), 'branch');
     let filterHotfix = false;
 
     return {

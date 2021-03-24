@@ -2,10 +2,7 @@ import { Controller, Get, Query, Render, Param, Req, Inject } from '@nestjs/comm
 import { AppService } from '../../services/app.service';
 import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
-import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
-import { Repository } from 'typeorm';
 import { Pages } from '../../pages';
-import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
 import { DeployManager } from '../../managers/deploy.manager';
 

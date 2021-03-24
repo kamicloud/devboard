@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { JenkinsService } from 'src/services/jenkins.service';
 import { JiraService } from 'src/services/jira.service';
 import { GithubService } from 'src/services/github.service';
+import _ from 'lodash';
 
 @Console({
   name: 'tool',
@@ -15,9 +16,6 @@ export class JiraCommand {
     private jenkinsService: JenkinsService,
     private jiraService: JiraService,
     private githubService: GithubService,
-    // private connection: Connection,
-    // @InjectRepository(GitDeployHistory)
-    // private gitDeployHistoryRepository: Repository<GitDeployHistory>,
   ) {
   }
 
@@ -34,16 +32,34 @@ export class JiraCommand {
         const comments = await this.jiraService.comments(issue.id);
         const changelogs = await this.jiraService.changelog(issue.id)
 
-        let res = comments.comments.filter(comment => {
+        let filteredComments = comments.comments.filter(comment => {
           return comment.author.accountId === accountId
         })
 
-        let res2 = changelogs.values.filter(changelog => {
+        let filterChangelogs = changelogs.values.filter(changelog => {
           return changelog.author.accountId === accountId
         })
 
-        if ((issue.fields.assignee && issue.fields.assignee.accountId === accountId) || res.length || res2.length) {
-          console.log(`${issue.key}\t${issue.fields.status.name}\t${issue.fields.summary}`)
+        if ((issue.fields.assignee && issue.fields.assignee.accountId === accountId) || filteredComments.length || filterChangelogs.length) {
+          let timeList = [];
+
+          if (filteredComments.length) {
+            timeList.push(filteredComments[filteredComments.length - 1].created);
+          }
+
+          if (filterChangelogs.length) {
+            timeList.push(filterChangelogs[filterChangelogs.length - 1].created);
+          }
+
+          if (!timeList.length) {
+            timeList.push(issue.fields.created)
+          }
+
+          timeList = timeList.sort();
+
+          // filterChangelogs
+          const eventTime = timeList.length ? timeList[timeList.length - 1] : '';
+          console.log(`${eventTime} ${_.padEnd(issue.key, 8)} ${_.padEnd(issue.fields.status.name, 15)} ${issue.fields.summary}`)
         }
       }
 

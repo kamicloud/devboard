@@ -3,12 +3,10 @@ import { AppService } from '../../services/app.service';
 import { NodegitService } from '../../services/nodegit.service';
 import { GithubService } from '../../services/github.service';
 import ConfigUtil from '../../utils/config.util';
-import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
-import { getManager, Brackets } from 'typeorm';
 import { Pages } from '../../pages';
-import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
 import _ from 'lodash';
 import { DeployManager } from '../../managers/deploy.manager';
+import { DatabaseService } from 'src/services/database.service';
 
 @Controller('api/deploy')
 export class DeployController {
@@ -17,7 +15,8 @@ export class DeployController {
     private readonly githubService: GithubService,
     private readonly nodegitService: NodegitService,
     private deployManager: DeployManager,
-    private configUtil: ConfigUtil
+    private configUtil: ConfigUtil,
+    private databaseService: DatabaseService,
   ) { }
 
   @Get()
@@ -41,20 +40,12 @@ export class DeployController {
   ) {
     const repositoryConfig = this.configUtil.getRepositoryConfig(project);
 
-    const entityManager = getManager();
-    const gitDeployHistories = await entityManager.getRepository(GitDeployHistory)
-      .createQueryBuilder()
-      .where(new Brackets(qb => {
-        qb.andWhere('repository=:repository', { repository: project })
-        qb.andWhere('site_name=:siteName', { siteName: site });
-        if (repositoryConfig.sites.live.indexOf(site) === -1) {
-          qb.andWhere('branch=:branch', { branch })
-        }
-        qb.andWhere('is_hidden=:isHidden', { isHidden: false })
-      }))
-      .orderBy('id', 'DESC')
-      .limit(20)
-      .getMany();
+    const gitDeployHistories = await this.databaseService.getDeployHistories(
+      project,
+      branch,
+      site,
+      repositoryConfig.sites
+    );
 
     return {
       gitDeployHistories
