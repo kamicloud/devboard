@@ -4,13 +4,11 @@ import { Logger } from "nestjs-pino";
 import _ from 'lodash';
 import { Console, Command, createSpinner, ConsoleService } from 'nestjs-console';
 import { ConfigService } from '@nestjs/config';
-import notifier from 'node-notifier';
 import { JenkinsService } from '../../services/jenkins.service';
 import { JiraService } from '../../services/jira.service';
 import axios from 'axios';
 import { Brackets, Repository } from 'typeorm';
-import { GitDeployHistory } from '../../entities/GitDeployHistory.entity';
-import { GitHotfixedCommit } from '../../entities/GitHotfixedCommit.entity';
+import { DatabaseService } from 'src/services/database.service';
 
 @Console({
   name: 'tasks',
@@ -30,10 +28,7 @@ export class TasksSchedule {
     private configService: ConfigService,
     private jenkinsService: JenkinsService,
     private jiraService: JiraService,
-    @Inject('GIT_DEPLOY_HISTORY_REPOSITORY')
-    private gitDeployHistoryRepository: Repository<GitDeployHistory>,
-    @Inject('GIT_HOTFIXED_COMMIT_REPOSITORY')
-    private gitHotfixedCommitRepository: Repository<GitHotfixedCommit>,
+    private databaseService: DatabaseService,
   ) {
     this.jiraLastRun = new Date();
   }
@@ -150,14 +145,7 @@ export class TasksSchedule {
     const project = 'sincerely';
     const jenkinsProjectName = 'sincerely-snapi';
 
-    const deployHistories = await this.gitDeployHistoryRepository
-      .createQueryBuilder()
-      .where(new Brackets(qb => {
-        qb.andWhere('repository=:repostiory', { repostiory: project })
-        qb.andWhere('deployment_status=:deploymentStatus', { deploymentStatus: 'deploying' })
-        qb.andWhere('`release`<>:release', { release: '' })
-      }))
-      .getMany();
+    const deployHistories = await this.databaseService.getReleaseDeployingHistories(project);
 
     for (const deployHistory of deployHistories) {
       const data = await this.jenkinsService.getBranch(jenkinsProjectName, deployHistory.release);
@@ -165,14 +153,10 @@ export class TasksSchedule {
       if (data && data.latestRun) {
         if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE') {
           deployHistory.deploymentStatus = 'deployed';
-          await this.gitDeployHistoryRepository
-            .createQueryBuilder()
-            .update()
-            .whereEntity(deployHistory)
-            .set({
-              deploymentStatus: data.latestRun.result === 'FAILURE' ? 'blocked' : 'deployed'
-            })
-            .execute()
+          await this.databaseService.updateDeployHistoryStatus(
+            deployHistory,
+            data.latestRun.result === 'FAILURE' ? 'blocked' : 'deployed'
+          )
         }
       }
     }
