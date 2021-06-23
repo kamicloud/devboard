@@ -28,24 +28,27 @@ export class DatabaseService {
     this.boot();
   }
 
-  boot() {
+  async boot() {
     if (!config().database.enabled) {
       return;
     }
 
-    createConnection({
-      type: 'mysql',
-      port: 3306,
-      ...config().database,
-      entities: [
-        __dirname + '/../entities/*.entity{.ts,.js}',
-      ],
-      synchronize: false,
-    }).then(connection => {
-      this.connection = connection;
-    }).catch(e => {
-      console.log(e)
-    })
+    if (this.connection && this.connection.isConnected) {
+      return;
+    }
+
+    try {
+      this.connection = await createConnection({
+        type: 'mysql',
+        port: 3306,
+        ...config().database,
+        entities: [
+          __dirname + '/../entities/*.entity{.ts,.js}',
+        ],
+        synchronize: false,
+      })
+    } catch (e) {
+    }
   }
 
   async getHotfixedCommits(project: string) {
@@ -83,6 +86,20 @@ export class DatabaseService {
       });
 
     return gitDeployHistories;
+  }
+
+  async getReleaseBranch(project: string, release: string) {
+    if (!this.connection) {
+      return null;
+    }
+
+    const gitDeployHistory = await this.connection.manager.getRepository(GitDeployHistory)
+      .createQueryBuilder()
+      .where('repository=:repository', { repository: project })
+      .where('`release`=:release', { release })
+      .getOne();
+
+    return gitDeployHistory;
   }
 
   async getDeployHistories(project: string, branch: string, site: string, sites: any) {

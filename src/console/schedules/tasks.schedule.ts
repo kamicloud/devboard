@@ -49,7 +49,7 @@ export class TasksSchedule {
     for (const job of jobs.split(',')) {
       const { data } = await this.jenkinsService.getRuns(job);
 
-      let contentArr: string[] = data.reverse().filter(element => {
+      const dataFiltered = data.reverse().filter(element => {
         // filter state
         const pipeline = decodeURIComponent(element.pipeline)
         const hash = `${pipeline}_${element.id}`;
@@ -88,7 +88,11 @@ export class TasksSchedule {
         }
 
         return false;
-      }).map(element => {
+      })
+
+      let contentArr: string[] = [];
+
+      for (const element of dataFiltered) {
         const pipeline = decodeURIComponent(element.pipeline)
         const hash = `${pipeline}_${element.id}`;
         const { state, result } = element;
@@ -97,10 +101,13 @@ export class TasksSchedule {
 
         let content = '';
 
-        content += `${pipeline} \t${this.jenkinsService.mapState(state)}\t${this.jenkinsService.mapResult(result)}`;
+        const gitDeployHistory = await this.databaseService.getReleaseBranch('sincerely', pipeline);
+        const branch = gitDeployHistory ? ` from ${gitDeployHistory.branch}` : '';
 
-        return content;
-      });
+        content += `${pipeline}${branch}\t${this.jenkinsService.mapState(state)}\t${this.jenkinsService.mapResult(result)}`;
+
+        contentArr.push(content);
+      }
 
       const content = contentArr.length ? `${job} releases:\n${contentArr.join("\n")}` : null;
 
