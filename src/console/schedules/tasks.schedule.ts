@@ -9,6 +9,7 @@ import { JiraService } from '../../services/jira.service';
 import axios from 'axios';
 import { Brackets, Repository } from 'typeorm';
 import { DatabaseService } from 'src/services/database.service';
+import { GithubService } from 'src/services/github.service';
 
 @Console({
   name: 'tasks',
@@ -29,6 +30,7 @@ export class TasksSchedule {
     private jenkinsService: JenkinsService,
     private jiraService: JiraService,
     private databaseService: DatabaseService,
+    private githubService: GithubService,
   ) {
     this.jiraLastRun = new Date();
   }
@@ -248,6 +250,96 @@ export class TasksSchedule {
       //   }
       // });
       console.log(finalContent);
+    }
+  }
+
+  @Command({
+    command: 'clean-branches',
+    description: 'Command for jenkins'
+  })
+  @Cron('0 * * * *')
+  async cleanDevBranches() {
+    const branches = await this.githubService.branches('sincerely');
+    const { token } = this.configService.get<any>('dingding');
+
+    const preus = 'https://preus.s.sincerely.com';
+    const preeu = 'https://preeu.s.sincerely.com';
+    const stage = 'https://stage.s.sincerely.com';
+
+    const host = 'https://stage.s.sincerely.com';
+
+    const hosts = [
+      preus,
+      preeu,
+      stage,
+    ];
+
+    const branchNames = branches.map(function (branch) {
+      return branch.name.replace(/[^a-zA-Z0-9 -]/g, '-').toLowerCase();
+    })
+
+    const getBranchesToDelete = async () => {
+      const {data} = await axios.get(`${host}/github/branches`);
+
+      return data.branches.filter((branch) => {
+        return branchNames.indexOf(branch.branch) === -1;
+      })
+    }
+
+    try {
+      const branchesToDelete = await getBranchesToDelete();
+
+      if (!branchesToDelete.length) {
+        return;
+      }
+
+      const branchesToDeleteNames = branchesToDelete.map(function (branch) {
+        return branch.branch;
+      })
+
+      await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${token}`, {
+        msgtype: 'text',
+        text: {
+          content: `Found deprecated branches:\n${branchesToDelete.map((branch) => `${branch.region}: ${branch.branch}`).join("\n")}`
+        }
+      });
+
+      branchesToDeleteNames.push('stage');
+      branchesToDeleteNames.push('pre');
+      branchesToDeleteNames.push('relase-stage-worker');
+
+      for (const branchToDelete of branchesToDeleteNames) {
+        for (const hostToDelete of hosts) {
+          // async
+          axios.post(`${hostToDelete}/github/pull`, {
+            ref_type: 'branch',
+            ref: `refs/heads/${branchToDelete}`
+          }, {
+            headers: {
+              'x-github-event': 'delete'
+            }
+          }).catch(() => {})
+        }
+      }
+
+      setTimeout(async () => {
+        try {
+          const branchesLeft = await getBranchesToDelete();
+
+          if (!branchesLeft.length) {
+            return;
+          }
+
+          await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${token}`, {
+            msgtype: 'text',
+            text: {
+              content: `Left branches:\n${branchesLeft.map((branch) => `${branch.region}: ${branch.branch}`).join("\n")}`
+            }
+          });
+        } catch (err) {
+        }
+      }, 1000 * 60 * 10);
+    } catch (err) {
     }
   }
 }

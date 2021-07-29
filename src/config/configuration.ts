@@ -9,6 +9,9 @@ export default () => ({
     dingtalkToken2: process.env.JENKINS_DINGTALK_TOKEN2,
     slackToken: process.env.JENKINS_SLACK_TOKEN,
   },
+  dingding: {
+    token: process.env.JENKINS_DINGDING_TOKEN,
+  },
   jira: {
     endpoint: process.env.JIRA_ENDPOINT,
     username: process.env.JIRA_USERNAME,
