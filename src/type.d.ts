@@ -34,7 +34,7 @@ export declare namespace Jira {
     status: Jira.IssueStatus,
     priority: ?Jira.IssuePriority,
     duedate: string,
-    components: Jira.IssueComponent[],
+    components: ?Jira.IssueComponent[],
   }
 
   interface IssueComponent {
