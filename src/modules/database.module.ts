@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { databaseProviders, repositoryProviders } from '../providers/database.provider';
+import { databaseProviders } from '../providers/database.provider';
 
 @Module({
   providers: [
@@ -11,7 +11,6 @@ export class DatabaseModule {
   static forRoot(): DynamicModule {
     const providers = [
       ...databaseProviders,
-      ...repositoryProviders,
     ]
     return {
       global: true,

@@ -57,7 +57,10 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
     >
       {
         groups.map((group: Jira.Group) => {
-          return <Select.Option key={group.id} value={group.id}>{group.name}</Select.Option>
+          return <Select.Option
+            key={group.id}
+            value={group.id}
+          >{group.name}</Select.Option>
         })
       }
     </Select>
@@ -75,7 +78,10 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
       >
         {
           userList.map((user: Jira.Member) => {
-            return <Select.Option key={user.accountId} value={user.accountId}>{user.displayName}</Select.Option>
+            return <Select.Option
+              key={user.accountId}
+              value={user.accountId}
+            >{user.displayName}</Select.Option>
           })
         }
       </Select> : null
@@ -115,13 +121,17 @@ const Kanban: NextPage<Pages.KanbanPageProps> = (props: Pages.KanbanPageProps) =
       <Table.Column title='Components' dataIndex='fields' key='key' render={(field: Jira.IssueFields) => {
         return (
           <>
-            {field.components.map(component => {
+            {field.components ? field.components.map(component => {
               return (
-                <Tooltip title={component.description} placement='top'>
+                <Tooltip
+                  key={component.id}
+                  title={component.description}
+                  placement='top'
+                >
                   <p>{component.name}</p>
                 </Tooltip>
               );
-            })}
+            }) : null}
           </>
         );
       }}

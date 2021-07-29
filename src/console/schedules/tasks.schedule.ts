@@ -36,12 +36,13 @@ export class TasksSchedule {
   })
   @Cron('*/10 * * * * *')
   async loadJenkinsActivities() {
-    this.logger.log('jenkins started');
     const { enabled, jobs, dingdingToken } = this.configService.get<any>('jenkins');
 
     if (!enabled) {
       return;
     }
+
+    this.logger.log('jenkins started');
 
     for (const job of jobs.split(',')) {
       const {data} = await this.jenkinsService.getRuns(job);
