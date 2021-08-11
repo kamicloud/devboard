@@ -257,7 +257,7 @@ export class TasksSchedule {
     command: 'clean-branches',
     description: 'Command for jenkins'
   })
-  @Cron('0 * * * *')
+  @Cron('0 0 * * * *')
   async cleanDevBranches() {
     const branches = await this.githubService.branches('sincerely');
     const { token } = this.configService.get<any>('dingding');
@@ -274,9 +274,18 @@ export class TasksSchedule {
       stage,
     ];
 
-    const branchNames = branches.map(function (branch) {
-      return branch.name.replace(/[^a-zA-Z0-9 -]/g, '-').toLowerCase();
-    })
+    const branchNames = [];
+    const lastCommits = [];
+    for (const branch of branches) {
+      const commits = await this.githubService.commits('sincerely', branch.name, 1);
+      const lowerBranchName = branch.name.replace(/[^a-zA-Z0-9 -]/g, '-').toLowerCase();
+      if (commits[0] && commits[0].commit.author.date && (new Date(commits[0].commit.author.date)).getTime() < (new Date()).getTime() - 86400 * 1000 * 15) {
+        lastCommits[lowerBranchName] = commits[0].commit.author.date;
+        continue;
+      }
+
+      branchNames.push(lowerBranchName);
+    }
 
     const getBranchesToDelete = async () => {
       const {data} = await axios.get(`${host}/github/branches`);
@@ -297,10 +306,15 @@ export class TasksSchedule {
         return branch.branch;
       })
 
+      const content = `Found deprecated branches:\n${branchesToDelete.map((branch) =>
+        `${branch.region}: ${branch.branch}` +
+        lastCommits[branch.branch] ? ` last commit ${lastCommits[branch.branch]}` : ''
+      ).join("\n")}`;
+
       await axios.post(`https://oapi.dingtalk.com/robot/send?access_token=${token}`, {
         msgtype: 'text',
         text: {
-          content: `Found deprecated branches:\n${branchesToDelete.map((branch) => `${branch.region}: ${branch.branch}`).join("\n")}`
+          content
         }
       });
 
