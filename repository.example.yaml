@@ -1,0 +1,34 @@
+default-repository: sincerely
+project-list:
+  - sincerely
+projects:
+  sincerely:
+    type:
+    name:
+    token:
+    orgnization:
+    url:
+    fullUrl:
+    testUrl:
+    sites:
+      stage:
+      pre:
+        - pre
+        - pre-eu
+      live:
+        - snapi
+        - snapi-eu
+        - snapi-gifting
+        - snapi-admin
+        - preview
+        - preview-eu
+        - preview-gifting
+        - worker
+        - worker-eu
+        - runner
+        - runner-eu
+github:
+  token:
+
+aws:
+  token:

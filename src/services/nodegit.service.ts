@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Git from 'nodegit';
 import fse from 'fs-extra';
 import ConfigUtil from '../utils/config.util';
+import git from 'simple-git';
 
 @Injectable()
 export class NodegitService {
@@ -13,9 +14,8 @@ export class NodegitService {
   }
 
   public async getRepositoryCommits(repository: string, branch: string, perpage = 50, page = 1) {
-    const config = this.configUtil.getRepositoryConfig(repository);
+    const repo = await this.openRepo(repository);
     const commits = [];
-    const repo = await Git.Repository.open('./storage/repositories/' + config.name);
 
     const addCommitDTO = (commit) => {
       const author = commit.author();
@@ -41,7 +41,7 @@ export class NodegitService {
 
   public async fetchAndPull(repository) {
     const repositoryConfig = this.configUtil.getRepositoryConfig(repository);
-    const repo = await Git.Repository.open('./storage/repositories/' + repository);
+    const repo = await Git.Repository.open('./storage/repositories/' + repositoryConfig.name);
 
     await repo.fetchAll({
       callbacks: {
@@ -87,5 +87,32 @@ export class NodegitService {
     // console.log(Array(72).join("=") + "\n\n");
     // console.log(String(blob));
     console.log('cloned ' + repository);
+
+    return repo;
+  }
+
+  public async listTags(repoName, pattern='*'):Promise<any[]> {
+    const repo = await this.openRepo(repoName);
+    return await Git.Tag.listMatch(pattern, repo);
+  }
+
+  private async openRepo(repoName) {
+    const path = this.getRepoPath(repoName);
+    return await Git.Repository.open(path);
+  }
+
+  private getRepoPath(repoName) {
+    const config = this.configUtil.getRepositoryConfig(repoName);
+    return './storage/repositories/' + config.name;
+  }
+
+  public async getRecentTags(repoName, pattern='*', count=5) {
+    const path = this.getRepoPath(repoName);
+    return await git(path).raw('for-each-ref', `refs/tags/${pattern}`, '--sort=-committerdate', `--count=${count}`, '--format=%(refname:short)');
+  }
+
+  public async logsBetweenTags(repoName, from, to) {
+    const path = this.getRepoPath(repoName);
+    return await git(path).raw('log', '--pretty=oneline', `${from}..${to}`);
   }
 }

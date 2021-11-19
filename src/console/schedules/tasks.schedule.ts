@@ -93,7 +93,7 @@ export class TasksSchedule {
         return false;
       })
 
-      let contentArr: string[] = [];
+      const contentArr: string[] = [];
 
       for (const element of dataFiltered) {
         const pipeline = decodeURIComponent(element.pipeline)
