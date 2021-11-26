@@ -40,6 +40,7 @@ export class JiraSchedule {
     private readonly jira: JiraApiService,
   ) {}
 
+
   @logExecTime()
   @Command({
     command: 'check-release',
@@ -174,13 +175,13 @@ export class JiraSchedule {
   }
 }
 
-function logExecTime() {
+function logExecTime(logFunc=console.log) {
   return (target, methodName: string, desc: PropertyDescriptor) => {
     const method = desc.value;
     desc.value = async function(...args) {
       const now = new Date().getTime();
       await method.apply(this, args)
-      console.log(`Method "${methodName}" cost ${new Date().getTime() - now} ms`);
+      logFunc(`Method "${methodName}" cost ${new Date().getTime() - now} ms`);
     }
   }
 }
