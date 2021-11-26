@@ -4,12 +4,16 @@ import Git from 'nodegit';
 import fse from 'fs-extra';
 import ConfigUtil from '../utils/config.util';
 import git from 'simple-git';
+import { isEmpty } from '@nestjs/common/utils/shared.utils';
+import { trimEnd } from 'lodash';
+import { Logger } from 'nestjs-pino';
 
 @Injectable()
 export class NodegitService {
   constructor(
     private configService: ConfigService,
     private configUtil: ConfigUtil,
+    private logger: Logger,
   ) {
   }
 
@@ -106,13 +110,30 @@ export class NodegitService {
     return './storage/repositories/' + config.name;
   }
 
-  public async getRecentTags(repoName, pattern='*', count=5) {
+  public async getRecentTags(repoName, pattern='*', count=5):Promise<string> {
     const path = this.getRepoPath(repoName);
     return await git(path).raw('for-each-ref', `refs/tags/${pattern}`, '--sort=-committerdate', `--count=${count}`, '--format=%(refname:short)');
   }
 
-  public async logsBetweenTags(repoName, from, to) {
+  public async logsBetweenTags(repoName, from, to):Promise<string> {
     const path = this.getRepoPath(repoName);
     return await git(path).raw('log', '--pretty=oneline', `${from}..${to}`);
+  }
+
+  public parseLogStr(logStr: string): string[] {
+    const logs = trimEnd(logStr, '\n').split('\n');
+    const reg = /(\/|\[)(sa|#)( |-)?(\d+)/gi;
+    const keys = [];
+
+    for (const log of logs) {
+      this.logger.log('parseLogStr==' + log);
+      const matches = [...log.matchAll(reg)];
+      if (isEmpty(matches)) continue;
+      const logKeys = matches.map(match => match[4]);
+      keys.push(...logKeys)
+      this.logger.log('LogKeys==' + logKeys.join(','));
+    }
+
+    return keys;
   }
 }

@@ -3,13 +3,13 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export default class ConfigUtil {
-  private repositoryConfig;
+  private static repositoryConfig;
+
   public getRepositoryConfig(project) {
-    if (!this.repositoryConfig) {
-       this.repositoryConfig = YAML.load('./repository.yaml');
+    if (!ConfigUtil.repositoryConfig) {
+      ConfigUtil.repositoryConfig = YAML.load('./repository.yaml');
     }
-    const config = this.repositoryConfig.projects[project];
-    return config;
+    return ConfigUtil.repositoryConfig.projects[project];
   }
 
   public getRepositoryUrl(repository) {
