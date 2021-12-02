@@ -8,11 +8,13 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from 'src/config/configuration';
 import { JiraCommand } from './commands/tool/jira.command';
 import { GithubCommand } from './commands/tool/github.command';
+import { JiraSchedule } from './schedules/jira.schedule';
 
 const providers = [
   GithubCommand,
   JiraCommand,
   TasksSchedule,
+  JiraSchedule,
 ];
 
 const testCommand = __dirname + '/commands/test.command.ts';

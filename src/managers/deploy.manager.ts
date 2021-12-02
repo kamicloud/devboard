@@ -19,7 +19,7 @@ export class DeployManager {
 
   public async index(
     project: string,
-    branch: string = 'master'
+    branch = 'master'
   ): Promise<Pages.DeployPageProps> {
     const branches = await this.githubService.branches(project);
     const commits = await this.githubService.commits(project, branch);

@@ -24,7 +24,7 @@ export class DeployController {
     @Query('project')
     project: string,
     @Query('branch')
-    branch: string = 'master'
+    branch = 'master'
   ): Promise<Pages.DeployPageProps> {
     return await this.deployManager.index(project, branch);
   }

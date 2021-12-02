@@ -39,6 +39,7 @@
     "commander": "^6.2.1",
     "cross-env": "^7.0.3",
     "imap": "^0.8.19",
+    "jira.js": "^2.8.0",
     "konva": "^7.2.5",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
@@ -63,6 +64,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.7",
+    "simple-git": "^2.47.0",
     "typeorm": "^0.2.35",
     "uuid": "^8.3.2",
     "yamljs": "^0.3.0"
