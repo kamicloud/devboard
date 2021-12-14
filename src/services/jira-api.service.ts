@@ -54,10 +54,6 @@ export class JiraApiService implements OnModuleInit{
     return JiraApiService.client;
   }
 
-  private getJiraToken() {
-    return this.aws.getJiraToken();
-  }
-
   public getIssue(key: string): Promise<Issue> {
     return this.getClient().issues.getIssue({issueIdOrKey: key});
   }
