@@ -9,6 +9,7 @@ import { isEmpty } from '@nestjs/common/utils/shared.utils';
 import { trimEnd } from 'lodash';
 import { BackendComponents } from '../../services/jira-const';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { AwsSdkService } from '../../services/aws-sdk.service';
 
 @Console({
   name: 'jira',
@@ -38,6 +39,7 @@ export class JiraSchedule {
     private readonly configUtil: ConfigUtil,
     private readonly git: NodegitService,
     private readonly jira: JiraApiService,
+    private readonly aws: AwsSdkService,
   ) {}
 
 
@@ -172,6 +174,9 @@ export class JiraSchedule {
   @logExecTime()
   private async test() {
     console.log('test========');
+    const result = await this.aws.getJiraToken();
+    console.log(result);
+   // console.log(token);
   }
 }
 

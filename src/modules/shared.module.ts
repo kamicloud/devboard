@@ -9,6 +9,7 @@ import { CacheService } from '../services/cache.service';
 import ConfigUtil from '../utils/config.util';
 import { DatabaseService } from 'src/services/database.service';
 import { JiraApiService } from '../services/jira-api.service';
+import { AwsSdkService } from '../services/aws-sdk.service';
 
 const providers = [
   AppService,
@@ -19,8 +20,8 @@ const providers = [
   NodegitService,
   ReleasesService,
   DatabaseService,
+  AwsSdkService,
   JiraApiService,
-
   ConfigUtil,
 ];
 

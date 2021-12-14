@@ -8,15 +8,36 @@ import {
   Project,
   Transitions
 } from 'jira.js/out/version3/models';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { FrontendComponents, IssueTransitionOperation } from './jira-const';
 import { Logger } from 'nestjs-pino';
+import { AwsSdkService } from './aws-sdk.service';
 
 @Injectable()
-export class JiraApiService {
+export class JiraApiService implements OnModuleInit{
   private static client: Version3Client;
+  private static token: string;
+  constructor(
+    private readonly logger: Logger,
+    private readonly aws: AwsSdkService
+  ) {}
 
-  constructor(private readonly logger: Logger) {}
+  async onModuleInit(): Promise<any> {
+    if (process.env.AWS_USE_ENV_CREDENTIALS == 'false') {
+      await this.aws.loadLocalCredentials();
+    }
+    await this.loadToken();
+  }
+
+  private async loadToken() {
+    try {
+      const result = await this.aws.getJiraToken();
+      JiraApiService.token = result.Parameter.Value;
+    } catch (err) {
+      this.logger.log('getJiraToken ERROR', err)
+      throw new Error('loadToken Error:' + err.message)
+    }
+  }
 
   public getClient(): Version3Client {
     if (isEmpty(JiraApiService.client)) {
@@ -25,9 +46,7 @@ export class JiraApiService {
         authentication: {
           basic: {
             email: process.env.JIRA_USERNAME,
-            apiToken: process.env.JIRA_TOKEN,
-            // username: process.env.JIRA_USERNAME,
-            // password: process.env.JIRA_PASSWORD,
+            apiToken: JiraApiService.token,
           }
         }
       });
