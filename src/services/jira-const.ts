@@ -1,7 +1,8 @@
 
 export enum IssueTransitionOperation {
-  RESOLVE_ISSUE = 'Resolve Issue',
   START_PROGRESS = 'Start Progress',
+  RESOLVE_ISSUE = 'Resolve Issue',
+  RELEASE_LIVE = 'Release LIVE',
 }
 
 export const BackendComponents =  {

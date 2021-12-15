@@ -9,7 +9,7 @@ import {
   Transitions
 } from 'jira.js/out/version3/models';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { FrontendComponents, IssueTransitionOperation } from './jira-const';
+import { FrontendComponents } from './jira-const';
 import { Logger } from 'nestjs-pino';
 import { AwsSdkService } from './aws-sdk.service';
 
@@ -97,14 +97,13 @@ export class JiraApiService implements OnModuleInit{
   }
 
   public async setIssueResolved(key: string): Promise<boolean> {
-    await this.setIssueTransition(key, IssueTransitionOperation.START_PROGRESS);
-    return await this.setIssueTransition(key, IssueTransitionOperation.RESOLVE_ISSUE);
+    return await this.setIssueTransition(key);
   }
 
-  private async setIssueTransition(key: string, transOp: IssueTransitionOperation):Promise<boolean> {
+  private async setIssueTransition(key: string):Promise<boolean> {
     try {
       const trans = await this.getTransitions(key);
-      const ops = trans.transitions.filter(tran => tran.name == transOp);
+      const ops = trans.transitions.filter(tran => tran.to.name == 'Resolved');
       if (isEmpty(ops)) return false;
 
       await this.doTransition(key, ops[0]);
