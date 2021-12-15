@@ -5,6 +5,11 @@ export enum IssueTransitionOperation {
   RELEASE_LIVE = 'Release LIVE',
 }
 
+export enum IssueTransitionStatus {
+  RESOLVED = 'Resolved',
+  IN_PROGRESS = 'In Progress',
+}
+
 export const BackendComponents =  {
   BACKEND_INK: {id: 11345, name: 'Backend - Ink'},
   BACKEND_FC: {id: 11346, name: 'Backend - FC'},
