@@ -45,7 +45,7 @@ export class JiraApiService implements OnModuleInit{
         host: process.env.JIRA_ENDPOINT,
         authentication: {
           basic: {
-            email: process.env.JIRA_USERNAME,
+            email: process.env.JIRA_API_USERNAME,
             apiToken: JiraApiService.token,
           }
         }
