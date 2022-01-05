@@ -42,13 +42,12 @@ export class JiraSchedule {
     private readonly aws: AwsSdkService,
   ) {}
 
-
-  @logExecTime()
   @Command({
     command: 'check-release',
     description: 'Check unsolved issues of released version'
   })
   @Cron(CronExpression.EVERY_10_MINUTES)
+  @logExecTime()
   public async checkRelease() {
     await this.git.fetchAndPull(JiraSchedule.PROJECT_NAME);
     this.logger.log('Fetch done...');
