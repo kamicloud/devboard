@@ -5,7 +5,7 @@ import { Table, Divider, Avatar, Tooltip, Select, Button } from 'antd';
 import { Pages } from 'src/pages';
 import { Jira } from 'src/type';
 import { useSelector, useDispatch } from 'react-redux'
-import PageLayout from '../components/PageLayout';
+import PageLayout from '../../../components/PageLayout';
 import api from '../../api';
 import _ from 'lodash';
 

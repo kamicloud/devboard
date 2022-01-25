@@ -5,11 +5,11 @@ import { Table, Radio, Divider, Button, Menu, Dropdown, Select, Card } from 'ant
 import { Pages } from 'src/pages';
 import { Github } from 'src/type';
 import _ from 'lodash';
-import CommitMessage from '../components/deploy/CommitMessage';
+import CommitMessage from '../../../components/deploy/CommitMessage';
 import { useRouter } from 'next/router'
 import api from 'pages/api';
 import { PlusSquareOutlined } from '@ant-design/icons';
-import SiteDeployHistoriesPopup from '../components/deploy/SiteDeployHistoriesPopup'
+import SiteDeployHistoriesPopup from '../../../components/deploy/SiteDeployHistoriesPopup'
 
 interface DeployTableButton {
   site: string,

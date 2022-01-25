@@ -4,11 +4,11 @@ import { Table, Radio, Divider, Button, Menu, Dropdown, Select, Card } from 'ant
 import _ from 'lodash';
 import api from 'pages/api';
 
-const SiteDeployHistoriesPopup = (props: {
+const SiteDeployHistoriesPopup: React.FC<{
   project: string,
   branch: string,
   site: string
-}) => {
+}> = (props) => {
   const { project, branch } = props;
   const [loading, setLoading] = useState(false);
   const [deployHistories, setDeploymentHistories] = useState([]);
