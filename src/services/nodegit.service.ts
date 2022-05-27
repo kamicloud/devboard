@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import fse from 'fs-extra';
 import ConfigUtil from '../utils/config.util';
 import git from 'simple-git';
 import { isEmpty } from '@nestjs/common/utils/shared.utils';
@@ -42,8 +41,13 @@ export class NodegitService {
     return commits;
   }
 
-  public async fetchAndPull(repository) {
-    return null;
+  public async fetchAndPull(repoName) {
+    const path = this.getRepoPath(repoName);
+    const fetchResult = await git(path).fetch();
+    this.logger.log(fetchResult, 'fetch result');
+
+    const pullResult = await git(path).pull();
+    this.logger.log(pullResult, 'pull result');
   }
 
   public async cloneRepository(repository, force = false) {

@@ -116,7 +116,7 @@ export class JiraSchedule {
     command: 'get-issues <site>'
   })
   private async getIssueKeys(site) {
-    const tagStr = await this.git.getRecentTags(JiraSchedule.PROJECT_NAME, `${site}-v*`, 3);
+    const tagStr = await this.git.getRecentTags(JiraSchedule.PROJECT_NAME, `${site}-v*`, 5);
     if (isEmpty(tagStr)) {
       this.logger.error(`NO TAGS AT ALL.`);
       return;
