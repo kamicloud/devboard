@@ -12,7 +12,8 @@ export class AwsSdkService {
 
   constructor(
     private readonly logger: Logger
-  ) {}
+  ) {
+  }
 
 
   /**
@@ -23,12 +24,11 @@ export class AwsSdkService {
       this.logger.log(err, 'AWS load local credentials ERROR');
     });
 
-    this.logger.log(AwsSdkService.credentials, "loadLocalCredentials");
+    this.logger.log(AwsSdkService.credentials, 'loadLocalCredentials');
   }
 
   public getSsmClient(): SSM {
     if (isEmpty(AwsSdkService.ssmClient)) {
-
       if (process.env.AWS_USE_ENV_CREDENTIALS == 'true') {
         AwsSdkService.credentials = new AWS.Credentials({
           accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -41,20 +41,21 @@ export class AwsSdkService {
         credentials: AwsSdkService.credentials
       });
     }
+
     return AwsSdkService.ssmClient;
   }
 
-  public async getParameter(name: string, withDecryption= true): Promise<GetParameterResult> {
+  public async getParameter(name: string, withDecryption = true): Promise<GetParameterResult> {
     return this.getSsmClient().getParameter({
       Name: name,
       WithDecryption: withDecryption
     }).promise();
   }
 
-  public async getCredentials(): Promise<AWS.Credentials|CredentialsOptions> {
+  public async getCredentials(): Promise<AWS.Credentials | CredentialsOptions> {
     return new Promise(((resolve, reject) => {
-      AWS.config.getCredentials((err, credentials)=>{
-        err ? reject(err) : resolve(credentials)
+      AWS.config.getCredentials((err, credentials) => {
+        err ? reject(err) : resolve(credentials);
       });
     }));
   }

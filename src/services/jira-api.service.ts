@@ -37,7 +37,8 @@ export class JiraApiService implements OnModuleInit{
 
     try {
         const result = await this.aws.getJiraToken();
-        JiraApiService.token = result.Parameter.Value;
+        JiraApiService.token = result.Parameter.Value
+        console.log('AWS Jira Token:', JiraApiService.token)
     } catch (err) {
       this.logger.log('getJiraToken ERROR', err)
       throw new Error('loadToken Error:' + err.message)
