@@ -54,7 +54,8 @@ export class JiraApiService implements OnModuleInit{
             email: process.env.JIRA_API_USERNAME,
             apiToken: JiraApiService.token,
           }
-        }
+        },
+        newErrorHandling: true
       });
     }
     return JiraApiService.client;
