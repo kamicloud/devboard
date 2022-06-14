@@ -85,7 +85,9 @@ export class TasksSchedule {
           pipeline.startsWith('worker-v') ||
           pipeline.startsWith('worker-eu-v') ||
           pipeline.startsWith('runner-v') ||
-          pipeline.startsWith('runner-eu-v')
+          pipeline.startsWith('runner-eu-v') ||
+          pipeline.startsWith('webhook-v') ||
+          pipeline.startsWith('webhook-eu-v')
         ) {
           return true;
         }
