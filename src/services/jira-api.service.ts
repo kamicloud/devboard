@@ -30,9 +30,15 @@ export class JiraApiService implements OnModuleInit{
   }
 
   private async loadToken() {
+    if (process.env.JIRA_API_USE_ENV_TOKEN === 'true') {
+      JiraApiService.token = process.env.JIRA_API_TOKEN;
+      return;
+    }
+
     try {
-      const result = await this.aws.getJiraToken();
-      JiraApiService.token = result.Parameter.Value;
+        const result = await this.aws.getJiraToken();
+        JiraApiService.token = result.Parameter.Value
+        console.log('AWS Jira Token:', JiraApiService.token)
     } catch (err) {
       this.logger.log('getJiraToken ERROR', err)
       throw new Error('loadToken Error:' + err.message)
@@ -48,7 +54,8 @@ export class JiraApiService implements OnModuleInit{
             email: process.env.JIRA_API_USERNAME,
             apiToken: JiraApiService.token,
           }
-        }
+        },
+        newErrorHandling: true
       });
     }
     return JiraApiService.client;

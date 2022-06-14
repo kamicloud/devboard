@@ -50,7 +50,6 @@
     "nestjs-pino": "^1.4.0",
     "next": "^10.2.3",
     "node-notifier": "^8.0.1",
-    "nodegit": "^0.27.0",
     "nodemon": "^2.0.12",
     "pino-tee": "^0.3.0",
     "react": "^17.0.1",
