@@ -160,7 +160,7 @@ export class JiraSchedule {
   private async testMatch(site) {
     const issueKeys = ['SA-16940'];
     try {
-      const keys = await this.jira.matchUnsolvedIssues(issueKeys, ['Backend – Ink']);
+      const keys = await this.jira.matchUnsolvedIssues(issueKeys, ['Backend - Ink']);
       console.log('keys=========', keys);
     } catch (e) {
       console.log(e);
