@@ -1,6 +1,10 @@
 FROM node:16.15.1-alpine3.14
 
+RUN apk add python2
+
 COPY . /workspace/
+
+RUN cd /workspace && yarn install && yarn build
 
 CMD cd /workspace && yarn install && yarn build
 

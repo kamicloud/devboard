@@ -7,7 +7,7 @@ import { GithubService } from 'src/services/github.service';
 import _ from 'lodash';
 
 @Console({
-  name: 'tool',
+  command: 'tool',
 })
 @Injectable()
 export class JiraCommand {

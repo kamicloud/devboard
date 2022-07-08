@@ -1,5 +1,3 @@
-import Git from 'nodegit';
-
 export default class RepositoryUtil {
   public static getRepositoryNameByUrl(repositoryUrl) {
     const arr = repositoryUrl.split('/').filter();

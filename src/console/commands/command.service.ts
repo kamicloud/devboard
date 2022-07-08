@@ -22,7 +22,7 @@ export class CommandService {
     // create a parent command container
     const groupCommand = this.consoleService.createGroupCommand(
       {
-        name: 'new',
+        command: 'new',
         description: 'A command to create an item'
       },
       cli // attach the command to the root cli

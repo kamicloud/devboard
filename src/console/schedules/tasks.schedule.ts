@@ -12,7 +12,7 @@ import { DatabaseService } from 'src/services/database.service';
 import { GithubService } from 'src/services/github.service';
 
 @Console({
-  name: 'tasks',
+  command: 'tasks',
   description: 'tasks schedule',
 })
 @Injectable()

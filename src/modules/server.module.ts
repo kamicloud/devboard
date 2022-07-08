@@ -11,6 +11,7 @@ import { HomeModule } from './home.module';
 import { RenderModule } from 'nest-next';
 import { SharedModule } from './shared.module';
 import { scheduleProvider } from '../providers/schedule.provider';
+import pino from 'pino';
 
 const imports = [
   RenderModule.forRootAsync(Next({ dev: process.env.NODE_ENV !== 'production' })),
@@ -18,7 +19,15 @@ const imports = [
     isGlobal: true,
     load: [configuration],
   }),
-  LoggerModule.forRoot(),
+  LoggerModule.forRoot({
+    pinoHttp: {
+      stream: pino.destination({
+        dest: './storage/logs/logger.log', // omit for stdout
+        minLength: 4096, // Buffer before writing
+        sync: false, // Asynchronous logging
+      }),
+    }
+  }),
   CacheModule.register(),
   SharedModule.forRoot(),
   ScheduleModule.forRoot(),

@@ -9,7 +9,7 @@ import { timeStamp } from 'console';
 import _ from 'lodash';
 
 @Console({
-  name: 'github',
+  command: 'github',
 })
 @Injectable()
 export class GithubCommand {

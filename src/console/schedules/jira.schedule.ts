@@ -12,7 +12,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { AwsSdkService } from '../../services/aws-sdk.service';
 
 @Console({
-  name: 'jira',
+  command: 'jira',
   description: 'jira schedule',
 })
 @Injectable()

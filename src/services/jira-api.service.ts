@@ -23,8 +23,10 @@ export class JiraApiService implements OnModuleInit{
   ) {}
 
   async onModuleInit(): Promise<any> {
-    if (process.env.AWS_USE_ENV_CREDENTIALS == 'false') {
+    if (process.env.AWS_USE_ENV_CREDENTIALS === 'false') {
       await this.aws.loadLocalCredentials();
+
+      return;
     }
     await this.loadToken();
   }

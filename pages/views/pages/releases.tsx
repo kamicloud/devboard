@@ -25,7 +25,7 @@ const ReleasesTable = (props) => {
   const [searchedColumn, setSearchedColumn] = useState('searchedColumn');
   const [searchText, setSearchText] = useState('searchText');
 
-  const searchInput: React.MutableRefObject<Input> = useRef(null);
+  const searchInput = useRef(null);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
