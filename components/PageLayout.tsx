@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Pages } from 'src/pages';
 
-const PageLayout: React.FC<Pages.PageLayoutProps> = (props) => {
+const PageLayout: React.FC<Pages.PageLayoutProps> = (props: React.PropsWithChildren) => {
   return <Layout>
     <Layout.Sider>
       <Menu theme="dark" defaultSelectedKeys={['1']} mode='inline'>
