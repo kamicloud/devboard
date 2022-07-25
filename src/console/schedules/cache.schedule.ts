@@ -9,9 +9,10 @@ import { JenkinsService } from '../../services/jenkins.service';
 import { JiraService } from '../../services/jira.service';
 import { GithubService } from '../../services/github.service';
 
+type CacheType = Cache;
 
 @Console({
-  name: 'cache',
+  command: 'cache',
   description: 'tasks schedule',
 })
 @Injectable()
@@ -29,7 +30,7 @@ export class CacheSchedule {
     private readonly jiraService: JiraService,
     private readonly githubService: GithubService,
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache
+    private cacheManager: CacheType
   ) {
     this.jiraLastRun = new Date();
   }

@@ -1,6 +1,5 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Logger } from "nestjs-pino";
-import _ from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { JiraService } from './jira.service';
@@ -10,6 +9,8 @@ import { createConnection, Connection, Brackets } from 'typeorm';
 import { GitDeployHistory } from '../entities/GitDeployHistory.entity';
 import { GitHotfixedCommit } from '../entities/GitHotfixedCommit.entity';
 import config from '../config/configuration';
+
+type CacheType = Cache;
 
 @Injectable()
 export class DatabaseService {
@@ -23,7 +24,7 @@ export class DatabaseService {
     private readonly jiraService: JiraService,
     private readonly githubService: GithubService,
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache
+    private cacheManager: CacheType
   ) {
     this.boot();
   }

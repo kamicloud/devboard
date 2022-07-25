@@ -34,23 +34,24 @@ const ReleasesTable = (props) => {
   };
 
   const nameSearch = {
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    filterDropdown: (props) => {
+      const { setSelectedKeys, selectedKeys, confirm, clearFilters } = props;
       return <div style={{ padding: 8 }}>
         <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ width: 188, marginBottom: 8, display: 'block' }}
+            ref={searchInput}
+            placeholder={`Search ${dataIndex}`}
+            value={selectedKeys[0]}
+            onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            style={{ width: 188, marginBottom: 8, display: 'block' }}
         />
         <Space>
           <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
+              type="primary"
+              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+              icon={<SearchOutlined />}
+              size="small"
+              style={{ width: 90 }}
           >
             Search
           </Button>
@@ -61,9 +62,9 @@ const ReleasesTable = (props) => {
       </div>
     },
     onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
-        : '',
+        record[dataIndex]
+            ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
+            : '',
     onFilterDropdownVisibleChange: visible => {
       if (visible) {
         setTimeout(() => searchInput.current.select(), 100);
@@ -72,12 +73,12 @@ const ReleasesTable = (props) => {
     render: text => {
 
       return searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ''}
-        />
+          <Highlighter
+              highlightStyle={{ backgroundColor: '#ffc069', padding: 0 }}
+              searchWords={[searchText]}
+              autoEscape
+              textToHighlight={text ? text.toString() : ''}
+          />
       ) : (text)
     },
   }

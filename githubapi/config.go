@@ -1,6 +1,9 @@
 package githubapi
 
-type Config struct {
+func init() {
+}
+
+type ConfigType struct {
 	Jenkins struct {
 		Enabled        bool
 		Username       string

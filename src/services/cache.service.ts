@@ -8,6 +8,8 @@ import { JiraService } from './jira.service';
 import { JenkinsService } from './jenkins.service';
 import { GithubService } from './github.service';
 
+type CacheType = Cache;
+
 @Injectable()
 export class CacheService {
   constructor(
@@ -17,7 +19,7 @@ export class CacheService {
     private readonly jiraService: JiraService,
     private readonly githubService: GithubService,
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache
+    private cacheManager: CacheType
   ) {
   }
 

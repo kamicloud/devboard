@@ -34,7 +34,7 @@ func main() {
 	println(s3Bucket)
 
 	// githubapi.Releases("sincerely")
-	githubapi.DeleteOldReleates()
+	githubapi.LoadJenkinsActivities()
 }
 
 // github delete-old-releases

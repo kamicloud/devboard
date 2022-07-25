@@ -1,9 +1,22 @@
 package githubapi
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 func LoadJenkinsActivities() {
-	os.Getenv("")
+	jobs := os.Getenv("JENKINS_JOBS")
+
+	jobsArray := strings.Split(jobs, ",")
+
+	for _, job := range jobsArray {
+		runs, _ := GetRuns(job)
+		println(runs)
+		println(runs.Reverse())
+
+	}
+
 	//     const { enabled, jobs, dingdingToken, slackToken } = this.configService.get<any>('jenkins');
 
 	//     if (!enabled) {
