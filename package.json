@@ -35,7 +35,6 @@
     "axios": "^0.20.0",
     "bull": "^3.27.0",
     "cache-manager": "^3.4.4",
-    "canvas": "^2.8.0",
     "commander": "^6.2.1",
     "cross-env": "^7.0.3",
     "imap": "^0.8.19",
