@@ -79,7 +79,7 @@ export class NodegitService {
 
   public parseLogStr(logStr: string): string[] {
     const logs = trimEnd(logStr, '\n').split('\n');
-    const reg = /(\/|\[)(sa|#)( |-)?(\d+)/gi;
+    const reg = /(\/|\[)(help|sa|#)( |-)?(\d+)/gi;
     const keys = [];
 
     for (const log of logs) {
