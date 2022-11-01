@@ -1,12 +1,9 @@
-FROM node:16.15.1-alpine3.14
-
-RUN apk add python2
+FROM node:16
 
 COPY . /workspace/
 
-RUN cd /workspace && yarn install && yarn build
-
-CMD cd /workspace && yarn install && yarn build
+CMD cd /workspace && yarn install && yarn build && yarn start
 
 #docker build -t sincerely-devtools .
 #docker run --mount type=bind,source=$(pwd),target=/workspace/ sincerely-devtools
+#docker run -d -p 3579:3000 --mount type=bind,source=$(pwd),target=/workspace/ sincerely-devtools
