@@ -8,7 +8,7 @@
   "scripts": {
     "console:dev": "ts-node -r tsconfig-paths/register src/console.ts",
     "console": "node .next/production-server/console.js",
-    "dev": "nodemon -r tsconfig-paths/register src/main.ts",
+    "dev": "ts-node -r tsconfig-paths/register src/main.ts",
     "build:clean": "rimraf .next",
     "build:ui": "npx next build",
     "build:server": "npx tsc --project tsconfig.server.json && npx babel --config-file ./.build/.server.babelrc .next/production-server -d .next/production-server --extensions \".js\"",
