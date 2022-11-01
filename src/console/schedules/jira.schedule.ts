@@ -170,11 +170,13 @@ export class JiraSchedule {
   @Command({
     command: 'test'
   })
+  // @Timeout(5000)
   @logExecTime()
   private async test() {
     console.log('test========');
-    const result = await this.aws.getJiraToken();
-    console.log(result);
+    await this.checkRelease();
+    // const result = await this.aws.getJiraToken();
+    // console.log(result);
    // console.log(token);
   }
 }
