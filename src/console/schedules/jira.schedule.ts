@@ -46,9 +46,10 @@ export class JiraSchedule {
     command: 'check-release',
     description: 'Check unsolved issues of released version'
   })
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   @logExecTime()
   public async checkRelease() {
+    console.log('Start Checking Jira Tickets=====');
     await this.git.fetchAndPull(JiraSchedule.PROJECT_NAME);
     this.logger.log('Fetch done...');
 
