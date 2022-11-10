@@ -46,7 +46,7 @@ export class JiraSchedule {
     command: 'check-release',
     description: 'Check unsolved issues of released version'
   })
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   @logExecTime()
   public async checkRelease() {
     console.log('Start Checking Jira Tickets=====');
