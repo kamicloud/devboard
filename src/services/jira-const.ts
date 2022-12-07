@@ -12,6 +12,7 @@ export enum IssueTransitionStatus {
 
 export const BackendComponents =  {
   BACKEND_INK: {id: 11345, name: 'Backend - Ink'},
+  BACKEND_PG: {id: 11111, name: 'Backend - PG'},
   BACKEND_FC: {id: 11346, name: 'Backend - FC'},
   BACKEND_GIFTING: {id: 11347, name: 'Backend - Gifting'},
   BACKEND_ADMIN_NEW: {id: 11170, name: 'Backend - Admin (New)'},
