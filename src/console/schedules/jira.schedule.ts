@@ -1,15 +1,15 @@
-import { Command, Console } from 'nestjs-console';
-import { Injectable } from '@nestjs/common';
-import { Logger } from 'nestjs-pino';
-import { ConfigService } from '@nestjs/config';
-import { NodegitService } from '../../services/nodegit.service';
+import {Command, Console} from 'nestjs-console';
+import {Injectable} from '@nestjs/common';
+import {Logger} from 'nestjs-pino';
+import {ConfigService} from '@nestjs/config';
+import {NodegitService} from '../../services/nodegit.service';
 import ConfigUtil from '../../utils/config.util';
-import { JiraApiService } from '../../services/jira-api.service';
-import { isEmpty } from '@nestjs/common/utils/shared.utils';
-import { trimEnd } from 'lodash';
-import { BackendComponents } from '../../services/jira-const';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { AwsSdkService } from '../../services/aws-sdk.service';
+import {JiraApiService} from '../../services/jira-api.service';
+import {isEmpty} from '@nestjs/common/utils/shared.utils';
+import {trimEnd} from 'lodash';
+import {BackendComponents, IssueTransitionStatus} from '../../services/jira-const';
+import {Cron, CronExpression} from '@nestjs/schedule';
+import {AwsSdkService} from '../../services/aws-sdk.service';
 
 @Console({
   command: 'jira',
@@ -76,6 +76,8 @@ export class JiraSchedule {
     if (isEmpty(keys)) return;
 
     for (const key of keys) {
+      const issue = await this.jira.getIssue(key);
+      if (issue.fields.status.name !== IssueTransitionStatus.VERIFIED_MASTER_PRE) continue;
       const ok = await this.jira.setIssueResolved(key);
       this.logger.log(`Resolving [${key}] ${ok ? '==succeeded==' : '==failed=='}`)
     }
@@ -175,7 +177,9 @@ export class JiraSchedule {
   @logExecTime()
   private async test() {
     console.log('test========');
-    await this.checkRelease();
+    const issue = await this.jira.getIssue('SA-23388')
+    console.log(issue.fields.status.name)
+    // await this.checkRelease();
     // const result = await this.aws.getJiraToken();
     // console.log(result);
    // console.log(token);

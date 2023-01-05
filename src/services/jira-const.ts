@@ -8,6 +8,7 @@ export enum IssueTransitionOperation {
 export enum IssueTransitionStatus {
   RESOLVED = 'Resolved',
   IN_PROGRESS = 'In Progress',
+  VERIFIED_MASTER_PRE = 'Verified Master PRE',
 }
 
 export const BackendComponents =  {

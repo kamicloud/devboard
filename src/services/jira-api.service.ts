@@ -1,5 +1,5 @@
-import { Version3Client } from 'jira.js';
-import { isEmpty } from '@nestjs/common/utils/shared.utils';
+import {Version3Client} from 'jira.js';
+import {isEmpty} from '@nestjs/common/utils/shared.utils';
 import {
   Component,
   ComponentIssuesCount,
@@ -8,10 +8,10 @@ import {
   Project,
   Transitions
 } from 'jira.js/out/version3/models';
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { FrontendComponents, IssueTransitionStatus } from './jira-const';
-import { Logger } from 'nestjs-pino';
-import { AwsSdkService } from './aws-sdk.service';
+import {Injectable, OnModuleInit} from '@nestjs/common';
+import {FrontendComponents, IssueTransitionStatus} from './jira-const';
+import {Logger} from 'nestjs-pino';
+import {AwsSdkService} from './aws-sdk.service';
 
 @Injectable()
 export class JiraApiService implements OnModuleInit{
@@ -106,7 +106,7 @@ export class JiraApiService implements OnModuleInit{
   }
 
   public async setIssueResolved(key: string): Promise<boolean> {
-    await this.setIssueTransition(key, IssueTransitionStatus.IN_PROGRESS);
+    // await this.setIssueTransition(key, IssueTransitionStatus.IN_PROGRESS);
     return await this.setIssueTransition(key, IssueTransitionStatus.RESOLVED);
   }
 
