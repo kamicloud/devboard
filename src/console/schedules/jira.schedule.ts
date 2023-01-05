@@ -7,7 +7,7 @@ import ConfigUtil from '../../utils/config.util';
 import {JiraApiService} from '../../services/jira-api.service';
 import {isEmpty} from '@nestjs/common/utils/shared.utils';
 import {trimEnd} from 'lodash';
-import {BackendComponents, IssueTransitionStatus} from '../../services/jira-const';
+import {BackendComponents} from '../../services/jira-const';
 import {Cron, CronExpression} from '@nestjs/schedule';
 import {AwsSdkService} from '../../services/aws-sdk.service';
 
@@ -76,8 +76,6 @@ export class JiraSchedule {
     if (isEmpty(keys)) return;
 
     for (const key of keys) {
-      const issue = await this.jira.getIssue(key);
-      if (issue.fields.status.name !== IssueTransitionStatus.VERIFIED_MASTER_PRE) continue;
       const ok = await this.jira.setIssueResolved(key);
       this.logger.log(`Resolving [${key}] ${ok ? '==succeeded==' : '==failed=='}`)
     }

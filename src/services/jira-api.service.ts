@@ -70,7 +70,7 @@ export class JiraApiService implements OnModuleInit{
   public async matchUnsolvedIssues(keys, coms: string[]):Promise<string[]> {
     coms = coms.map(com => `"${com}"`);
     const frontComs = FrontendComponents.map(com => `"${com}"`);
-    const jql = `key in (${keys}) AND statusCategory != Done AND component in (${coms}) AND component not in (${frontComs})`;
+    const jql = `key in (${keys}) AND statusCategory != Done AND status = "Verified Master PRE" AND component in (${coms}) AND component not in (${frontComs})`;
     this.logger.log(`jql====${jql}`)
     try {
       const result = await this.getClient().issueSearch.searchForIssuesUsingJql({jql})
