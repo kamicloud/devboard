@@ -163,11 +163,11 @@ export class TasksSchedule {
       const data = await this.jenkinsService.getBranch(jenkinsProjectName, deployHistory.release);
 
       if (data && data.latestRun) {
-        if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE') {
+        if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE' || data.latestRun.result === 'ABORTED') {
           deployHistory.deploymentStatus = 'deployed';
           await this.databaseService.updateDeployHistoryStatus(
             deployHistory,
-            data.latestRun.result === 'FAILURE' ? 'blocked' : 'deployed'
+            data.latestRun.result === 'SUCCESS' ? 'deployed' : 'blocked'
           )
         }
       }
