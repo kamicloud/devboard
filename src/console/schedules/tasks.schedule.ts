@@ -78,6 +78,7 @@ export class TasksSchedule {
           pipeline.startsWith('snapi-v') ||
           pipeline.startsWith('snapi-eu-v') ||
           pipeline.startsWith('snapi-gifting-v') ||
+          pipeline.startsWith('snapi-pca-v') ||
           pipeline.startsWith('snapi-admin-v') ||
           pipeline.startsWith('preview-v') ||
           pipeline.startsWith('preview-eu-v') ||
