@@ -155,24 +155,26 @@ export class TasksSchedule {
   @Cron('*/10 * * * * *')
   async updateDeploymentStatus() {
     this.logger.log('update-deployment-status');
-    const project = 'sincerely';
-    const jenkinsProjectName = 'sincerely-snapi';
+    const handler = async (project: string, jenkinsProjectName: string) => {
+      const deployHistories = await this.databaseService.getReleaseDeployingHistories(project);
 
-    const deployHistories = await this.databaseService.getReleaseDeployingHistories(project);
+      for (const deployHistory of deployHistories) {
+        const data = await this.jenkinsService.getBranch(jenkinsProjectName, deployHistory.release);
 
-    for (const deployHistory of deployHistories) {
-      const data = await this.jenkinsService.getBranch(jenkinsProjectName, deployHistory.release);
-
-      if (data && data.latestRun) {
-        if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE' || data.latestRun.result === 'ABORTED') {
-          deployHistory.deploymentStatus = 'deployed';
-          await this.databaseService.updateDeployHistoryStatus(
-            deployHistory,
-            data.latestRun.result === 'SUCCESS' ? 'deployed' : 'blocked'
-          )
+        if (data && data.latestRun) {
+          if (data.latestRun.result === 'SUCCESS' || data.latestRun.result === 'FAILURE' || data.latestRun.result === 'ABORTED') {
+            deployHistory.deploymentStatus = 'deployed';
+            await this.databaseService.updateDeployHistoryStatus(
+              deployHistory,
+              data.latestRun.result === 'SUCCESS' ? 'deployed' : 'blocked'
+            )
+          }
         }
       }
     }
+
+    await handler('sincerely', 'sincerely-snapi')
+    await handler('freeprints-web', 'freeprints-web')
   }
 
   @Command({
