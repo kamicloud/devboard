@@ -11,9 +11,4 @@ export default class ConfigUtil {
     }
     return ConfigUtil.repositoryConfig.projects[project];
   }
-
-  public getRepositoryUrl(repository) {
-    const config = this.getRepositoryConfig(repository);
-    return `https://${config.token}@github.com/${config.orgnization}/${name}`;
-  }
 }

@@ -1,13 +1,6 @@
 import {Version3Client} from 'jira.js';
 import {isEmpty} from '@nestjs/common/utils/shared.utils';
-import {
-  Component,
-  ComponentIssuesCount,
-  Issue,
-  IssueTransition,
-  Project,
-  Transitions
-} from 'jira.js/out/version3/models';
+import {IssueTransition, Transitions} from 'jira.js/out/version3/models';
 import {Injectable, OnModuleInit} from '@nestjs/common';
 import {FrontendComponents, IssueTransitionStatus} from './jira-const';
 import {Logger} from 'nestjs-pino';
@@ -38,9 +31,9 @@ export class JiraApiService implements OnModuleInit{
     }
 
     try {
-        const result = await this.aws.getJiraToken();
-        JiraApiService.token = result.Parameter.Value
-        console.log('AWS Jira Token:', JiraApiService.token)
+      const result = await this.aws.getJiraToken();
+      JiraApiService.token = result.Parameter.Value
+      console.log('AWS Jira Token:', JiraApiService.token)
     } catch (err) {
       this.logger.log('getJiraToken ERROR', err)
       throw new Error('loadToken Error:' + err.message)
@@ -63,10 +56,6 @@ export class JiraApiService implements OnModuleInit{
     return JiraApiService.client;
   }
 
-  public getIssue(key: string): Promise<Issue> {
-    return this.getClient().issues.getIssue({issueIdOrKey: key});
-  }
-
   public async matchUnsolvedIssues(keys, coms: string[]):Promise<string[]> {
     coms = coms.map(com => `"${com}"`);
     const frontComs = FrontendComponents.map(com => `"${com}"`);
@@ -81,28 +70,12 @@ export class JiraApiService implements OnModuleInit{
     }
   }
 
-  public getProject(key: string): Promise<Project> {
-    return this.getClient().projects.getProject({projectIdOrKey: key});
-  }
-
   public doTransition(key: string, transition: IssueTransition): Promise<void> {
     return this.getClient().issues.doTransition({issueIdOrKey: key, transition});
   }
 
   public getTransitions(key: string): Promise<Transitions> {
     return this.getClient().issues.getTransitions({issueIdOrKey: key});
-  }
-
-  public getComponent(id: string): Promise<Component> {
-    return this.getClient().projectComponents.getComponent({id});
-  }
-
-  public getProjectComponents(projectKey: string): Promise<Component[]> {
-    return this.getClient().projectComponents.getProjectComponents({projectIdOrKey: projectKey})
-  }
-
-  public getComponentRelatedIssues(id: string): Promise<ComponentIssuesCount> {
-    return this.getClient().projectComponents.getComponentRelatedIssues({id})
   }
 
   public async setIssueResolved(key: string): Promise<boolean> {
@@ -124,6 +97,4 @@ export class JiraApiService implements OnModuleInit{
 
     return true;
   }
-
-
 }

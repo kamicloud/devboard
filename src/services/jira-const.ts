@@ -1,9 +1,4 @@
 
-export enum IssueTransitionOperation {
-  START_PROGRESS = 'Start Progress',
-  RESOLVE_ISSUE = 'Resolve Issue',
-  RELEASE_LIVE = 'Release LIVE',
-}
 
 export enum IssueTransitionStatus {
   RESOLVED = 'Resolved',

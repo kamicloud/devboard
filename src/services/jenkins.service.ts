@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { Jenkins } from 'src/type';
 
 @Injectable()
 export class JenkinsService {
@@ -73,5 +72,22 @@ export class JenkinsService {
       default:
         return state;
     }
+  }
+}
+
+export declare namespace Jenkins {
+  interface Run {
+    id: string,
+    pipeline: string,
+    state: string,
+    changeSet: {}[],
+    result: string,
+    causes: {
+      shortDescription: string,
+    }[]
+  }
+
+  interface Branch {
+    latestRun?: Jenkins.Run,
   }
 }

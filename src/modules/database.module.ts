@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { databaseProviders } from '../providers/database.provider';
+import {createConnection} from "typeorm";
+import config from "../services/configuration";
 
 @Module({
   providers: [
@@ -20,3 +21,19 @@ export class DatabaseModule {
     };
   }
 }
+
+export const databaseProviders = [
+  {
+    isGlobal: true,
+    provide: 'DATABASE_CONNECTION',
+    useFactory: async () => await createConnection({
+      type: 'mysql',
+      port: 3306,
+      ...config().database,
+      entities: [
+        __dirname + '/../**/*.entity{.ts,.js}',
+      ],
+      synchronize: false,
+    }),
+  },
+];

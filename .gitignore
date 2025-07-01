@@ -7,3 +7,6 @@
 /repository.yaml
 .DS_Store
 .env
+.env*
+*.yaml
+*.log

@@ -15,7 +15,6 @@ export class AwsSdkService {
   ) {
   }
 
-
   /**
    * load credentials from local.
    */
